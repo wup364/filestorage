@@ -74,8 +74,7 @@ func (nm *NameManage) AddNode(node ifilestorage.TNode4New) (res string, err erro
 	node.Id = strutil.GetUUID()
 	if err = node.CheckNodeNotNull(node.Name == "/"); nil == err {
 		var conn *sql.Tx
-		conn, err = nm.story.GetSqlTx()
-		if nil == err {
+		if conn, err = nm.story.GetSqlTx(); nil == err {
 			if err = nm.story.InsertNode(conn, node); nil == err {
 				if err = nm.image.AddNode(node); nil == err {
 					if err = conn.Commit(); nil == err {
@@ -119,8 +118,7 @@ func (nm *NameManage) DelNode(id string) (err error) {
 		return errors.New("node not find")
 	}
 	var conn *sql.Tx
-	conn, err = nm.story.GetSqlTx()
-	if nil == err {
+	if conn, err = nm.story.GetSqlTx(); nil == err {
 		// 移动到待删除区域, 后续异步删除
 		if err = nm.story.MoveNode(conn, id, cnode.Name, AREA_ROOT_RECYCLE); nil == err {
 			if err = nm.image.RemoveNode(cnode.Id); nil == err {
@@ -137,8 +135,7 @@ func (nm *NameManage) DelNode(id string) (err error) {
 // UpdateNode 更新节点
 func (nm *NameManage) UpdateNode(id string, node ifilestorage.TNode4Update) (err error) {
 	var conn *sql.Tx
-	conn, err = nm.story.GetSqlTx()
-	if nil != err {
+	if conn, err = nm.story.GetSqlTx(); nil != err {
 		return err
 	}
 	if err = nm.story.UpdateById(conn, id, node); nil == err {
@@ -169,8 +166,7 @@ func (nm *NameManage) CopyNode(srcid, name, destid string) (id string, err error
 // MoveNode 移动节点, srcid -> dstid.child
 func (nm *NameManage) MoveNode(srcid, name, destid string) (err error) {
 	var conn *sql.Tx
-	conn, err = nm.story.GetSqlTx()
-	if nil == err {
+	if conn, err = nm.story.GetSqlTx(); nil == err {
 		if err = nm.story.MoveNode(conn, srcid, name, destid); nil == err {
 			if err = nm.image.MoveNode(srcid, name, destid); nil == err {
 				err = conn.Commit()
@@ -190,8 +186,8 @@ func (nm *NameManage) NodeCount() int64 {
 
 // Install 第一次初始化安装表
 func (nm *NameManage) Install() (err error) {
-	conn, err := nm.story.GetSqlTx()
-	if nil != err {
+	var conn *sql.Tx
+	if conn, err = nm.story.GetSqlTx(); nil != err {
 		return err
 	}
 	if err = nm.story.CreateTables(conn); nil == err {

@@ -438,7 +438,7 @@ func (n *NameNodeImpl) GetDirNodeList(src string, limit int, offst int) ([]ifile
 
 // DoQueryDeletedDataAddr 根据nodeno查找, 只能查找一天前的
 func (n *NameNodeImpl) DoQueryDeletedDataAddr(nodeno string, limit int) ([]ifilestorage.DeletedAddr, error) {
-	ctime := time.Now().UnixMilli() - int64(time.Hour*24)
+	ctime := time.Now().UnixMilli() - int64(time.Hour/time.Millisecond*24)
 	return n.da.FindByNodeNo(n.da.GetDB(), nodeno, ctime, limit)
 }
 
