@@ -1,0 +1,9 @@
+.vscode/*
+**/debug.test
+**/.conf/*.json
+**/.conf/*.txt
+**/.conf/*.db
+**/.conf/*.db-journal
+**/datas/**
+**/*.log
+**/.datas/**

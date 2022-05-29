@@ -1,0 +1,27 @@
+{
+	"folders": [
+		{
+			"path": ".\\bin"
+		},
+		{
+			"path": ".\\tools"
+		},
+		{
+			"path": ".\\opensdk"
+		},
+		{
+			"path": ".\\datanode"
+		},
+		{
+			"path": ".\\namenode"
+		},
+		{
+			"path": ".\\pakku"
+		},
+		{
+			"name": "all-files",
+			"path": ".\\"
+		}
+	],
+	"settings": {}
+}
