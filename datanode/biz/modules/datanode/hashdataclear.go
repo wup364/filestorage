@@ -163,8 +163,7 @@ func (dn *HashDataClear) doClearHashFile() (err error) {
 			for i := 0; i < len(lockedhash); i++ {
 				if _, ok := allhashMap[lockedhash[i]]; ok {
 					var err error
-					temp := getArchivedPath4Hash(lockedhash[i])
-					if dn.fds.IsFile(temp) {
+					if temp := getArchivedPath4Hash(lockedhash[i]); dn.fds.IsFile(temp) {
 						if err = dn.fds.DoDelete(temp); nil != err {
 							logs.Errorln(err)
 						}

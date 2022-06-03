@@ -47,8 +47,7 @@ func (dnm *DataNodeFiles) DoWriteStream(opts *ifilestorage.StreamWriteOpts, read
 	var wpath string
 	if wpath, err = getTempDIR4UploadToken(*opts); nil == err {
 		var newReader *WriteReader
-		newReader, err = dnm.dhc.GetWriteReader(opts, reader)
-		if nil == err {
+		if newReader, err = dnm.dhc.GetWriteReader(opts, reader); nil == err {
 			defer newReader.Close()
 			// 只要被锁定过, 那么这个文件很有可能正在被删除, 保险起见还是重新上传一遍
 			if len(opts.Sha256) > 0 && dnm.fds.IsFile(getArchivedPath4Hash(opts.Sha256)) && dnm.dhc.CanQuoteHash(opts.Sha256) {
@@ -125,6 +124,7 @@ func (dnm *DataNodeFiles) DoArchiveToken(token string) (fnode *ifilestorage.DNod
 				if err = dnm.fds.DoMove(tsrc, dst, false); nil != err {
 					if !dnm.fds.IsFile(dst) {
 						for i := 0; i < 10; i++ {
+							time.Sleep(time.Second)
 							if dnm.fds.IsFile(dst) {
 								err = nil
 								break
