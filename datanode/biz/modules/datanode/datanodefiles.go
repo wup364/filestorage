@@ -118,7 +118,7 @@ func (dnm *DataNodeFiles) DoArchiveToken(token string) (fnode *ifilestorage.DNod
 			src, _ := getTempDIR4UploadToken(wopts[i])
 			dst := getArchivedPath4Hash(wopts[i].Sha256)
 			// 等待可以归档hash文件, 如果在删除队列中, 则需要等待
-			dnm.dhc.waitCanArchiveHash(wopts[i].Sha256)
+			dnm.dhc.LockHashOnArchive(wopts[i].Sha256)
 			if !dnm.fds.IsFile(dst) {
 				tsrc := src + "/" + wopts[i].Sha256
 				if err = dnm.fds.DoMove(tsrc, dst, false); nil != err {

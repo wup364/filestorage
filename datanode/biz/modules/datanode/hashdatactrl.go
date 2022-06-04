@@ -26,17 +26,17 @@ import (
 // NewHashDataCtrl  hash文件写入、读取、删除控制
 func NewHashDataCtrl() *HashDataCtrl {
 	return &HashDataCtrl{
-		lock:    new(sync.RWMutex),
-		dellock: utypes.NewSafeMap(),
-		wtokens: (&bizutils.TokenManager{}).Init(),
+		delhashlocker: new(sync.RWMutex),
+		dellock:       utypes.NewSafeMap(),
+		wtokens:       (&bizutils.TokenManager{}).Init(),
 	}
 }
 
 // HashDataCtrl hash文件写入、读取、删除控制
 type HashDataCtrl struct {
-	lock    *sync.RWMutex
-	dellock *utypes.SafeMap
-	wtokens *bizutils.TokenManager
+	delhashlocker *sync.RWMutex
+	dellock       *utypes.SafeMap
+	wtokens       *bizutils.TokenManager
 }
 
 // GetWriteReader 获取写入用的reader
@@ -91,35 +91,60 @@ func (hdc *HashDataCtrl) GetReader(opts ifilestorage.StreamReadOpts) (*Reader, e
 
 // CanQuoteHash 是否可以使用这个hash连接, 要求不在删除队列中
 func (hdc *HashDataCtrl) CanQuoteHash(hash string) bool {
-	hdc.lock.RLock()
-	defer hdc.lock.RUnlock()
+	hdc.delhashlocker.RLock()
+	defer hdc.delhashlocker.RUnlock()
 	return !hdc.dellock.ContainsKey(hash)
 }
 
-// waitCanArchiveHash 等待可以归档hash文件, 如果在删除队列中, 则需要等待
-func (hdc *HashDataCtrl) waitCanArchiveHash(hash string) {
-	hdc.lock.RLock()
-	defer hdc.lock.RUnlock()
+// LockHashOnArchive 等待可以归档hash文件的时机, 如果在删除队列中, 则需要等待
+func (hdc *HashDataCtrl) LockHashOnArchive(hash string) {
+	hdc.delhashlocker.RLock()
 	if val, ok := hdc.dellock.Get(hash); ok {
+		hdc.delhashlocker.RUnlock()
 		val.(*sync.Mutex).Lock()
+		if hdc.dellock.ContainsKey(hash) {
+			// 如果获得锁后, hash依然存在, 则说明在删除执行前获得了锁, 则可以先取消这次删除
+			hdc.dellock.Delete(hash)
+			val.(*sync.Mutex).Unlock()
+		}
+	} else {
+		hdc.delhashlocker.RUnlock()
 	}
 }
 
-// MarkHashAsUndeleting 标记hash已被释放
-func (hdc *HashDataCtrl) MarkHashAsUndeleting(hash string) {
-	hdc.lock.Lock()
-	defer hdc.lock.Unlock()
+// LockHashOnDelete 锁定这个即将删除的hash, 如果锁定成功,则在同hash文件归档时需要等待解锁, 反之这个hash不能删除
+func (hdc *HashDataCtrl) LockHashOnDelete(hash string) bool {
+	hdc.delhashlocker.RLock()
+	if val, ok := hdc.dellock.Get(hash); ok {
+		hdc.delhashlocker.RUnlock()
+		val.(*sync.Mutex).Lock()
+		return hdc.dellock.ContainsKey(hash)
+	}
+	return false
+}
+
+// ReleaseDeleteLock 释放hash删除锁
+func (hdc *HashDataCtrl) ReleaseDeleteLock(hash string) {
+	hdc.delhashlocker.Lock()
+	defer hdc.delhashlocker.Unlock()
 	if val, ok := hdc.dellock.Get(hash); ok {
 		hdc.dellock.Delete(hash)
 		val.(*sync.Mutex).Unlock()
 	}
 }
 
-// MarkHashAsdeleting 标记这个hash正在被删除中, 返回标记否成功的
-func (hdc *HashDataCtrl) MarkHashAsdeleting(hashs []string) []string {
+//RemoveHashDeleteMark 删除hash删除标记(取消删除)
+func (hdc *HashDataCtrl) RemoveHashDeleteMark(hash string) {
+	hdc.delhashlocker.Lock()
+	defer hdc.delhashlocker.Unlock()
+	hdc.dellock.Delete(hash)
+}
+
+// MarkHashOnDelete 标记这个hash正在被删除中, 返回标记否成功的(正在使用中的无法锁定)
+func (hdc *HashDataCtrl) MarkHashOnDelete(hashs []string) []string {
 	// 这个执行时间内不允许新建
-	hdc.lock.Lock()
-	defer hdc.lock.Unlock()
+	hdc.delhashlocker.Lock()
+	defer hdc.delhashlocker.Unlock()
 	hashsmap := make(map[string]uint8)
 	for i := 0; i < len(hashs); i++ {
 		if _, ok := hashsmap[hashs[i]]; !ok {
@@ -144,10 +169,9 @@ func (hdc *HashDataCtrl) MarkHashAsdeleting(hashs []string) []string {
 	res := make([]string, 0)
 	if len(hashsmap) > 0 {
 		for key := range hashsmap {
-			l := new(sync.Mutex)
-			l.Lock()
-			hdc.dellock.Put(key, l)
-			res = append(res, key)
+			if nil == hdc.dellock.PutX(key, new(sync.Mutex)) {
+				res = append(res, key)
+			}
 		}
 	}
 	return res
@@ -155,8 +179,8 @@ func (hdc *HashDataCtrl) MarkHashAsdeleting(hashs []string) []string {
 
 // putWriteReader 记录每个token的每一片的写入情况
 func (hdc *HashDataCtrl) putWriteReader(opts *ifilestorage.StreamWriteOpts, reader *WriteReader) error {
-	hdc.lock.RLock()
-	defer hdc.lock.RUnlock()
+	hdc.delhashlocker.RLock()
+	defer hdc.delhashlocker.RUnlock()
 	if val, ok := hdc.wtokens.GetTokenBody(opts.Token); ok {
 		hdc.wtokens.RefreshToken(opts.Token)
 		m := val.(*utypes.SafeMap)

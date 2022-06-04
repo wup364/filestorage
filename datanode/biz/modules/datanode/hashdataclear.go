@@ -132,11 +132,11 @@ func (dn *HashDataClear) doClearHashFile() (err error) {
 				needlockhash = append(needlockhash, disabled[i].Hash)
 			}
 		}
-		// 执行锁定
-		lockedhash := dn.dhc.MarkHashAsdeleting(needlockhash)
+		// 初步标记即将删除的hash
+		markedhash := dn.dhc.MarkHashOnDelete(needlockhash)
 		defer func() {
-			for i := 0; i < len(lockedhash); i++ {
-				dn.dhc.MarkHashAsUndeleting(lockedhash[i])
+			for i := 0; i < len(markedhash); i++ {
+				dn.dhc.ReleaseDeleteLock(markedhash[i])
 			}
 		}()
 		var tx *sql.Tx
@@ -148,8 +148,7 @@ func (dn *HashDataClear) doClearHashFile() (err error) {
 				if err = dn.dhs.DeleteInIDs(tx, disIds); nil == err {
 					if err = tx.Commit(); nil == err {
 						for i := 0; i < len(hashs); i++ {
-							delete(allhashMap, hashs[i])
-							dn.dhc.MarkHashAsUndeleting(hashs[i])
+							dn.dhc.RemoveHashDeleteMark(hashs[i])
 						}
 					}
 				} else {
@@ -160,18 +159,17 @@ func (dn *HashDataClear) doClearHashFile() (err error) {
 		// . 剩下的锁定成功的, 就是没有引用的hash, 直接删除文件并解锁
 		if nil == err {
 			candelhash := make([]string, 0)
-			for i := 0; i < len(lockedhash); i++ {
-				if _, ok := allhashMap[lockedhash[i]]; ok {
+			for i := 0; i < len(markedhash); i++ {
+				if dn.dhc.LockHashOnDelete(markedhash[i]) {
 					var err error
-					if temp := getArchivedPath4Hash(lockedhash[i]); dn.fds.IsFile(temp) {
+					if temp := getArchivedPath4Hash(markedhash[i]); dn.fds.IsFile(temp) {
 						if err = dn.fds.DoDelete(temp); nil != err {
 							logs.Errorln(err)
 						}
 					}
-					dn.dhc.MarkHashAsUndeleting(lockedhash[i])
+					dn.dhc.ReleaseDeleteLock(markedhash[i])
 					if nil == err {
-						delete(allhashMap, lockedhash[i])
-						candelhash = append(candelhash, lockedhash[i])
+						candelhash = append(candelhash, markedhash[i])
 					}
 				}
 			}
