@@ -210,19 +210,10 @@ func (n *NameNodeImpl) DoUpdateFile(src, addr string, size int64) (err error) {
 		return errors.New("no access path '/'")
 	}
 	if node := n.GetNode(src); nil != node {
-		var conn *sql.Tx
-		if conn, err = n.da.GetSqlTx(); nil == err {
-			if err = n.da.InsertItem(conn, node.Addr); nil == err {
-				node.Addr = addr
-				node.Size = size
-				node.Mtime = time.Now().UnixMilli()
-				if err = n.fn.UpdateNode(node.Id, ifilestorage.TNode4Update{}.ReverseTNode(*node)); nil == err {
-					err = conn.Commit()
-				} else {
-					conn.Rollback()
-				}
-			}
-		}
+		node.Addr = addr
+		node.Size = size
+		node.Mtime = time.Now().UnixMilli()
+		err = n.fn.UpdateNode(node.Id, ifilestorage.TNode4Update{}.ReverseTNode(*node))
 	} else {
 		err = fileutil.PathNotExist("updatefile", src)
 	}

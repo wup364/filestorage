@@ -17,7 +17,7 @@
 | -------- | ------------------- | ------ | ---------------------------- |
 | datanode | 节点名称,默认 DN101 | `随机` | 仅供内部调用, 每次启动时生成 |
 
-    用户信息数据库配置 `user4rpc.store.driver=sqlite3` 和 `user4rpc.store.datasource=${appname}#user?cache=shared`, 可以更改成mysql的连接;
+    用户信息数据库配置 `store.user4rpc.driver=sqlite3` 和 `store.user4rpc.datasource=${appname}#user?cache=shared`, 可以更改成mysql的连接;
     datanode的节点名称可以动过配置改变 `nodeno=DN101`;
 
 ### 配置清单

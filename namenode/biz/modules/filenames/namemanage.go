@@ -134,17 +134,35 @@ func (nm *NameManage) DelNode(id string) (err error) {
 
 // UpdateNode 更新节点
 func (nm *NameManage) UpdateNode(id string, node ifilestorage.TNode4Update) (err error) {
+	var cnode *ifilestorage.TNode
+	if cnode = nm.image.GetNodeByID(id); nil == cnode {
+		return errors.New("node not find")
+	}
 	var conn *sql.Tx
-	if conn, err = nm.story.GetSqlTx(); nil != err {
-		return err
-	}
-	if err = nm.story.UpdateById(conn, id, node); nil == err {
-		if err = nm.image.UpdateNode(id, node); nil == err {
-			err = conn.Commit()
+	if conn, err = nm.story.GetSqlTx(); nil == err {
+		// 删除节点的旧版本的hash
+		if cnode.Flag == ifilestorage.FLAG_NODETYPE_FILE && cnode.Addr != node.Addr {
+			err = nm.story.InsertNode(conn, ifilestorage.TNode4New{
+				Id:    strutil.GetUUID(),
+				Pid:   AREA_ROOT_RECYCLE,
+				Name:  id + ".old",
+				Addr:  cnode.Addr,
+				Flag:  1,
+				Size:  0,
+				Ctime: 0,
+				Mtime: 0,
+			})
 		}
-	}
-	if nil != err {
-		conn.Rollback()
+		if nil == err {
+			if err = nm.story.UpdateById(conn, id, node); nil == err {
+				if err = nm.image.UpdateNode(id, node); nil == err {
+					err = conn.Commit()
+				}
+			}
+		}
+		if nil != err {
+			conn.Rollback()
+		}
 	}
 	return err
 }
@@ -251,8 +269,13 @@ func (nm *NameManage) waitClearTime() {
 func (nm *NameManage) doDelNode(node ifilestorage.TNode) (err error) {
 	// 删除datanode数据
 	if node.Flag == names.FLAG_FILE && len(node.Addr) > 0 {
-		if err = nm.ev.PublishSyncEvent("filenames", "deletenode", node); nil != err {
+		if count, err := nm.story.CountReferencedAddr(nm.story.GetDB(), node.Addr); nil != err {
 			return err
+		} else if count <= 1 {
+			// 如果没有引用的则删除
+			if err = nm.ev.PublishSyncEvent("filenames", "deletenode", node); nil != err {
+				return err
+			}
 		}
 	}
 	// 物理删除

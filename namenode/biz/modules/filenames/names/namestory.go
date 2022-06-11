@@ -97,6 +97,25 @@ func (nm *NameStory) DeleteByID(conn *sql.Tx, id string) (err error) {
 	return err
 }
 
+// CountReferencedAddr 统计引用的文件地址
+func (nm *NameStory) CountReferencedAddr(conn *sql.DB, addr string) (count int64, err error) {
+	if len(addr) == 0 {
+		return count, errors.New("addr is empty")
+	}
+
+	if rows, err := conn.Query("select count(addr) from "+nm.table+" where addr=?", addr); nil != err {
+		return count, err
+	} else {
+		defer rows.Close()
+		if rows.Next() {
+			if err := rows.Scan(&count); nil != err {
+				return count, err
+			}
+		}
+	}
+	return count, err
+}
+
 // InsertNode 新增节点
 func (nm *NameStory) InsertNode(conn *sql.Tx, node ifilestorage.TNode4New) (err error) {
 	var stmt *sql.Stmt

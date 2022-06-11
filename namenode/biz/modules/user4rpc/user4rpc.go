@@ -35,12 +35,12 @@ func (umg *User4RPC) AsModule() ipakku.Opts {
 		OnReady: func(mctx ipakku.Loader) {
 			umg.us = &UserStory{}
 			deftDataSource := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#user?cache=shared"
-			confDataSource := umg.c.GetConfig("user4rpc.store.datasource").ToString(deftDataSource)
+			confDataSource := umg.c.GetConfig("store.user4rpc.datasource").ToString(deftDataSource)
 			if confDataSource == deftDataSource {
 				umg.mkSqliteDIR() // 创建sqlite文件存放目录
 			}
 			if err := umg.us.Initial(ifilestorage.DBSetting{
-				DriverName:     umg.c.GetConfig("user4rpc.store.driver").ToString("sqlite3"),
+				DriverName:     umg.c.GetConfig("store.user4rpc.driver").ToString("sqlite3"),
 				DataSourceName: confDataSource,
 			}); nil != err {
 				logs.Panicln(err)
