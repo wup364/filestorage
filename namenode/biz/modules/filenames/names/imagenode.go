@@ -73,7 +73,7 @@ func (node *TMNode) GetChilds(limit int, offset int) (nodes []*TMNode, count int
 		if offset < count {
 			index := 0
 			keys := make([]string, count)
-			node.child.DoRange(func(key, val interface{}) error {
+			node.child.DoRange(func(key, _ interface{}) error {
 				keys[index] = key.(string)
 				index++
 				return nil
@@ -105,7 +105,7 @@ func (node *TMNode) GetFileSize() int64 {
 			return 0
 		}
 		size := int64(0)
-		node.child.DoRange(func(key, val interface{}) error {
+		node.child.DoRange(func(_, val interface{}) error {
 			cnode := val.(*TMNode)
 			if cnode.flag == FLAG_DIR {
 				size += cnode.GetFileSize()
