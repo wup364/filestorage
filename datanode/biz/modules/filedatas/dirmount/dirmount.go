@@ -14,9 +14,10 @@ package dirmount
 import (
 	"datanode/biz/modules/filedatas/ifiledatas"
 	"errors"
-	"pakku/utils/logs"
-	"pakku/utils/strutil"
 	"strings"
+
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 // 常量

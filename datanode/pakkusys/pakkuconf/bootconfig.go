@@ -17,7 +17,8 @@ import (
 	"datanode/biz/modules/user4rpc"
 	"datanode/biz/rpcservice"
 	"datanode/pakkusys"
-	"pakku/ipakku"
+
+	"github.com/wup364/pakku/ipakku"
 )
 
 // RegisterModules 注册需要加载的模块

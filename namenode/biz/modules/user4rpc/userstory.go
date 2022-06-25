@@ -14,9 +14,10 @@ package user4rpc
 import (
 	"database/sql"
 	"namenode/ifilestorage"
-	"pakku/utils/logs"
-	"pakku/utils/strutil"
 	"time"
+
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
 
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/mattn/go-sqlite3"

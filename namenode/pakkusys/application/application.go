@@ -14,13 +14,14 @@ package application
 import (
 	"errors"
 	"namenode/pakkusys/pakkuconf"
-	"pakku"
-	"pakku/ipakku"
-	"pakku/utils/fileutil"
-	"pakku/utils/logs"
 	"path/filepath"
 	"reflect"
 	"sync"
+
+	"github.com/wup364/pakku"
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/utils/fileutil"
+	"github.com/wup364/pakku/utils/logs"
 )
 
 //pakkuBoot pakkuBoot instance

@@ -14,10 +14,11 @@ package names
 import (
 	"errors"
 	"namenode/ifilestorage"
-	"pakku/utils/logs"
-	"pakku/utils/strutil"
-	"pakku/utils/utypes"
 	"strings"
+
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
+	"github.com/wup364/pakku/utils/utypes"
 )
 
 // NewNameImage NewNameImage

@@ -18,8 +18,9 @@ package datanode
 import (
 	"database/sql"
 	"datanode/ifilestorage"
-	"pakku/utils/logs"
 	"time"
+
+	"github.com/wup364/pakku/utils/logs"
 )
 
 // HashDataClear Hash文件数据清理

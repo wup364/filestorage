@@ -13,10 +13,11 @@ package user4rpc
 
 import (
 	"namenode/ifilestorage"
-	"pakku/ipakku"
-	"pakku/utils/fileutil"
-	"pakku/utils/logs"
-	"pakku/utils/strutil"
+
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/utils/fileutil"
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 // User4RPC 用户管理模块

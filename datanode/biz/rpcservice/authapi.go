@@ -11,7 +11,8 @@ package rpcservice
 
 import (
 	"datanode/ifilestorage"
-	"pakku/ipakku"
+
+	"github.com/wup364/pakku/ipakku"
 )
 
 // UserAccess access内容

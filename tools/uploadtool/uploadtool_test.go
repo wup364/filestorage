@@ -13,8 +13,9 @@ package main
 
 import (
 	"opensdk"
-	"pakku/utils/strutil"
 	"testing"
+
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 func TestDoUploadDir(t *testing.T) {

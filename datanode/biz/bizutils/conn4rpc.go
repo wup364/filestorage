@@ -12,8 +12,9 @@ package bizutils
 import (
 	"errors"
 	"net/rpc"
-	"pakku/utils/strutil"
-	"pakku/utils/utypes"
+
+	"github.com/wup364/pakku/utils/strutil"
+	"github.com/wup364/pakku/utils/utypes"
 )
 
 var ErrorAuthentication = errors.New("authentication failed")

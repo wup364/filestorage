@@ -15,9 +15,10 @@ import (
 	"datanode/biz/bizutils"
 	"datanode/biz/modules/datanode/namenode"
 	"datanode/ifilestorage"
-	"pakku/ipakku"
-	"pakku/utils/logs"
 	"time"
+
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/utils/logs"
 )
 
 // DataNode 数据存储节点

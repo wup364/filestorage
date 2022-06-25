@@ -16,8 +16,9 @@ import (
 	"datanode/ifilestorage"
 	"errors"
 	"io"
-	"pakku/utils/logs"
-	"pakku/utils/strutil"
+
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 // NewDataNodeImpl datanode 功能本机实现

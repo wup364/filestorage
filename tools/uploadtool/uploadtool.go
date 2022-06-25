@@ -16,12 +16,13 @@ import (
 	"io"
 	"opensdk"
 	"opensdk/utils"
-	"pakku/modules/appconfig/jsonconfig"
-	"pakku/utils/fileutil"
-	"pakku/utils/logs"
-	"pakku/utils/strutil"
 	"path/filepath"
 	"strings"
+
+	"github.com/wup364/pakku/modules/appconfig/jsonconfig"
+	"github.com/wup364/pakku/utils/fileutil"
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 var scandir *string

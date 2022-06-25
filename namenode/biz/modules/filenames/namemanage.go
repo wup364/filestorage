@@ -16,11 +16,12 @@ import (
 	"errors"
 	"namenode/biz/modules/filenames/names"
 	"namenode/ifilestorage"
-	"pakku/ipakku"
-	"pakku/utils/logs"
-	"pakku/utils/strutil"
-	"pakku/utils/upool"
 	"time"
+
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
+	"github.com/wup364/pakku/utils/upool"
 )
 
 // NameManage 树

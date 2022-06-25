@@ -13,8 +13,9 @@ package pakkuconf
 import (
 	"namenode/ifilestorage"
 	"namenode/pakkusys"
-	"pakku/ipakku"
-	"pakku/utils/logs"
+
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/utils/logs"
 )
 
 // crateDefaultUsers 创建默认用户

@@ -18,10 +18,11 @@ import (
 	"datanode/ifilestorage"
 	"errors"
 	"io"
-	"pakku/ipakku"
-	"pakku/utils/logs"
-	"pakku/utils/strutil"
 	"strings"
+
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 // FileDatas 文件数据管理

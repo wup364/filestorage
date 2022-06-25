@@ -15,7 +15,8 @@ import (
 	"datanode/biz/bizutils"
 	"datanode/biz/rpcservice"
 	"datanode/ifilestorage"
-	"pakku/utils/logs"
+
+	"github.com/wup364/pakku/utils/logs"
 )
 
 // NewRPC4NameNode NewRPC4NameNode

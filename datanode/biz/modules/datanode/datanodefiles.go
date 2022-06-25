@@ -14,11 +14,12 @@ import (
 	"datanode/ifilestorage"
 	"errors"
 	"io"
-	"pakku/utils/fileutil"
-	"pakku/utils/logs"
-	"pakku/utils/strutil"
 	"strconv"
 	"time"
+
+	"github.com/wup364/pakku/utils/fileutil"
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 const (

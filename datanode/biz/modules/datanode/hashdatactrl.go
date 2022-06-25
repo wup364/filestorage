@@ -17,10 +17,11 @@ import (
 	"errors"
 	"hash"
 	"io"
-	"pakku/utils/utypes"
 	"sort"
 	"strconv"
 	"sync"
+
+	"github.com/wup364/pakku/utils/utypes"
 )
 
 // NewHashDataCtrl  hash文件写入、读取、删除控制

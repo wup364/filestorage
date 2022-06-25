@@ -14,11 +14,12 @@ import (
 	"fmt"
 	"math/rand"
 	"namenode/ifilestorage"
-	"pakku/utils/fileutil"
-	"pakku/utils/strutil"
-	"pakku/utils/upool"
 	"testing"
 	"time"
+
+	"github.com/wup364/pakku/utils/fileutil"
+	"github.com/wup364/pakku/utils/strutil"
+	"github.com/wup364/pakku/utils/upool"
 
 	_ "github.com/mattn/go-sqlite3"
 )

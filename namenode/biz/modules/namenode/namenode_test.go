@@ -16,12 +16,13 @@ import (
 	"namenode/biz/modules/filenames"
 	"namenode/biz/modules/user4rpc"
 	"namenode/ifilestorage"
-	"pakku"
-	"pakku/utils/strutil"
-	"pakku/utils/upool"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/wup364/pakku"
+	"github.com/wup364/pakku/utils/strutil"
+	"github.com/wup364/pakku/utils/upool"
 )
 
 func TestNameNode(t *testing.T) {

@@ -15,9 +15,10 @@ import (
 	"database/sql"
 	"namenode/biz/modules/namenode/datanodes"
 	"namenode/ifilestorage"
-	"pakku/ipakku"
-	"pakku/utils/fileutil"
-	"pakku/utils/logs"
+
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/utils/fileutil"
+	"github.com/wup364/pakku/utils/logs"
 )
 
 // NameNode 元数据节点

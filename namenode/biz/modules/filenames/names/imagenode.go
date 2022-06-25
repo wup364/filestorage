@@ -3,9 +3,10 @@ package names
 import (
 	"errors"
 	"namenode/ifilestorage"
-	"pakku/utils/utypes"
 	"sort"
 	"sync"
+
+	"github.com/wup364/pakku/utils/utypes"
 )
 
 // TMNode 元数据信息(内存树)

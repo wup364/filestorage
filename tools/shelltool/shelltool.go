@@ -14,11 +14,12 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"pakku/utils/fileutil"
-	"pakku/utils/logs"
-	"pakku/utils/reflectutil"
 	"path/filepath"
 	"strings"
+
+	"github.com/wup364/pakku/utils/fileutil"
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/reflectutil"
 )
 
 func main() {

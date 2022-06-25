@@ -14,9 +14,10 @@ import (
 	"datanode/biz/bizutils"
 	"errors"
 	"fmt"
-	"pakku/utils/utypes"
 	"testing"
 	"time"
+
+	"github.com/wup364/pakku/utils/utypes"
 )
 
 func TestGetArchivedPath4Hash(t *testing.T) {

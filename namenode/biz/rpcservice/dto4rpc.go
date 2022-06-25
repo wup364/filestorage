@@ -14,7 +14,8 @@ package rpcservice
 import (
 	"encoding/gob"
 	"namenode/ifilestorage"
-	"pakku/utils/strutil"
+
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 func init() {

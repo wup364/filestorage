@@ -13,7 +13,8 @@ package rpcservice
 
 import (
 	"namenode/ifilestorage"
-	"pakku/utils/fileutil"
+
+	"github.com/wup364/pakku/utils/fileutil"
 )
 
 // NameNode 命名空间节点

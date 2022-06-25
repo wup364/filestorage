@@ -14,10 +14,11 @@ import (
 	"datanode/ifilestorage"
 	"datanode/pakkusys"
 	"net/http"
-	"pakku/ipakku"
-	"pakku/utils/logs"
-	"pakku/utils/strutil"
 	"strings"
+
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 // crateDefaultUsers 创建默认用户

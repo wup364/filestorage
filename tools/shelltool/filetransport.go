@@ -15,10 +15,11 @@ import (
 	"errors"
 	"io"
 	"opensdk"
-	"pakku/utils/fileutil"
-	"pakku/utils/logs"
-	"pakku/utils/strutil"
 	"path/filepath"
+
+	"github.com/wup364/pakku/utils/fileutil"
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 // doUploadDir 上传文件夹

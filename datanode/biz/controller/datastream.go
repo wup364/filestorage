@@ -18,12 +18,13 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
-	"pakku/ipakku"
-	"pakku/utils/serviceutil"
-	"pakku/utils/strutil"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/utils/serviceutil"
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 const (

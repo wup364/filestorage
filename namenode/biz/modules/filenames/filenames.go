@@ -13,11 +13,12 @@ package filenames
 
 import (
 	"namenode/ifilestorage"
-	"pakku/ipakku"
-	"pakku/utils/fileutil"
-	"pakku/utils/logs"
 	"strconv"
 	"time"
+
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/utils/fileutil"
+	"github.com/wup364/pakku/utils/logs"
 )
 
 // FileNames 文件命名空间管理

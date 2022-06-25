@@ -15,15 +15,16 @@ import (
 	"datanode/ifilestorage"
 	"fmt"
 	"os"
-	"pakku"
-	"pakku/ipakku"
-	"pakku/modules/appconfig"
-	"pakku/utils/fileutil"
-	"pakku/utils/logs"
-	"pakku/utils/strutil"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/wup364/pakku"
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/modules/appconfig"
+	"github.com/wup364/pakku/utils/fileutil"
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 func TestFileDatas(t *testing.T) {

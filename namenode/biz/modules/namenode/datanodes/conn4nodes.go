@@ -16,11 +16,12 @@ import (
 	"namenode/biz/bizutils"
 	"namenode/biz/rpcservice"
 	"namenode/ifilestorage"
-	"pakku/ipakku"
-	"pakku/utils/logs"
-	"pakku/utils/strutil"
-	"pakku/utils/utypes"
 	"time"
+
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
+	"github.com/wup364/pakku/utils/utypes"
 )
 
 var ErrNoAliveDNode = errors.New("not have alive datanode")

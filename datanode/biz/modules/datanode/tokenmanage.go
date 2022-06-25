@@ -11,9 +11,10 @@ package datanode
 
 import (
 	"datanode/ifilestorage"
-	"pakku/ipakku"
-	"pakku/utils/logs"
 	"time"
+
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/utils/logs"
 )
 
 const (

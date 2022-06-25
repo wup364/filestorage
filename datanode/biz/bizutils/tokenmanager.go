@@ -13,10 +13,11 @@
 package bizutils
 
 import (
-	"pakku/utils/strutil"
-	"pakku/utils/utypes"
 	"runtime"
 	"time"
+
+	"github.com/wup364/pakku/utils/strutil"
+	"github.com/wup364/pakku/utils/utypes"
 )
 
 // TokenManager 令牌管理器, 可实现临时对象的存储
