@@ -12,7 +12,7 @@
 package datanodes
 
 import (
-	"namenode/biz/bizutils"
+	"namenode/business/bizutils"
 	"namenode/ifilestorage"
 )
 

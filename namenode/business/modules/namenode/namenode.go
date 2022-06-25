@@ -13,7 +13,7 @@ package namenode
 
 import (
 	"database/sql"
-	"namenode/biz/modules/namenode/datanodes"
+	"namenode/business/modules/namenode/datanodes"
 	"namenode/ifilestorage"
 
 	"github.com/wup364/pakku/ipakku"

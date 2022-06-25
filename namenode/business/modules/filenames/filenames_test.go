@@ -12,7 +12,7 @@ package filenames
 import (
 	"errors"
 	"fmt"
-	"namenode/biz/modules/filenames/names"
+	"namenode/business/modules/filenames/names"
 	"namenode/ifilestorage"
 	"testing"
 	"time"

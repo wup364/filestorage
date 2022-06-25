@@ -14,7 +14,7 @@ package filenames
 import (
 	"database/sql"
 	"errors"
-	"namenode/biz/modules/filenames/names"
+	"namenode/business/modules/filenames/names"
 	"namenode/ifilestorage"
 	"time"
 

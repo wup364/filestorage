@@ -12,8 +12,8 @@
 package namenode
 
 import (
-	"datanode/biz/bizutils"
-	"datanode/biz/rpcservice"
+	"datanode/business/bizutils"
+	"datanode/business/rpcservice"
 	"datanode/ifilestorage"
 
 	"github.com/wup364/pakku/utils/logs"

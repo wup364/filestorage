@@ -13,8 +13,8 @@ package namenode
 
 import (
 	"fmt"
-	"namenode/biz/modules/filenames"
-	"namenode/biz/modules/user4rpc"
+	"namenode/business/modules/filenames"
+	"namenode/business/modules/user4rpc"
 	"namenode/ifilestorage"
 	"strconv"
 	"testing"

@@ -11,7 +11,7 @@ package datanode
 
 import (
 	"crypto/sha256"
-	"datanode/biz/bizutils"
+	"datanode/business/bizutils"
 	"datanode/ifilestorage"
 	"encoding/hex"
 	"errors"

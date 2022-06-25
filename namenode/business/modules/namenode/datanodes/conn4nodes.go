@@ -13,8 +13,8 @@ package datanodes
 import (
 	"errors"
 	"math/rand"
-	"namenode/biz/bizutils"
-	"namenode/biz/rpcservice"
+	"namenode/business/bizutils"
+	"namenode/business/rpcservice"
 	"namenode/ifilestorage"
 	"time"
 

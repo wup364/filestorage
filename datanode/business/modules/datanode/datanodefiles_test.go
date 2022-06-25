@@ -11,7 +11,7 @@
 package datanode
 
 import (
-	"datanode/biz/bizutils"
+	"datanode/business/bizutils"
 	"errors"
 	"fmt"
 	"testing"

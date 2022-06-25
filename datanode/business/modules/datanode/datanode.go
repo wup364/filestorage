@@ -12,8 +12,8 @@
 package datanode
 
 import (
-	"datanode/biz/bizutils"
-	"datanode/biz/modules/datanode/namenode"
+	"datanode/business/bizutils"
+	"datanode/business/modules/datanode/namenode"
 	"datanode/ifilestorage"
 	"time"
 

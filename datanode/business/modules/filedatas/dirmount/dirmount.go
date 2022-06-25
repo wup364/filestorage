@@ -12,7 +12,7 @@
 package dirmount
 
 import (
-	"datanode/biz/modules/filedatas/ifiledatas"
+	"datanode/business/modules/filedatas/ifiledatas"
 	"errors"
 	"strings"
 

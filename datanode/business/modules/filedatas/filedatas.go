@@ -12,9 +12,9 @@
 package filedatas
 
 import (
-	"datanode/biz/modules/filedatas/dirmount"
-	"datanode/biz/modules/filedatas/fsdrivers"
-	"datanode/biz/modules/filedatas/ifiledatas"
+	"datanode/business/modules/filedatas/dirmount"
+	"datanode/business/modules/filedatas/fsdrivers"
+	"datanode/business/modules/filedatas/ifiledatas"
 	"datanode/ifilestorage"
 	"errors"
 	"io"
