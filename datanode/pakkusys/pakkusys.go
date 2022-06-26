@@ -9,7 +9,7 @@
 
 package pakkusys
 
-import "pakku/ipakku"
+import "github.com/wup364/pakku/ipakku"
 
 // ModuleEvent 模块事件监听注册对象
 type ModuleEvent struct {

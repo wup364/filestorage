@@ -11,12 +11,13 @@
 package pakkuconf
 
 import (
-	"namenode/biz/modules/filenames"
-	"namenode/biz/modules/namenode"
-	"namenode/biz/modules/user4rpc"
-	"namenode/biz/rpcservice"
+	"namenode/business/modules/filenames"
+	"namenode/business/modules/namenode"
+	"namenode/business/modules/user4rpc"
+	"namenode/business/rpcservice"
 	"namenode/pakkusys"
-	"pakku/ipakku"
+
+	"github.com/wup364/pakku/ipakku"
 )
 
 // RegisterModules 注册需要加载的模块

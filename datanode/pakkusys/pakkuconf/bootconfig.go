@@ -11,13 +11,14 @@
 package pakkuconf
 
 import (
-	"datanode/biz/controller"
-	"datanode/biz/modules/datanode"
-	"datanode/biz/modules/filedatas"
-	"datanode/biz/modules/user4rpc"
-	"datanode/biz/rpcservice"
+	"datanode/business/controller"
+	"datanode/business/modules/datanode"
+	"datanode/business/modules/filedatas"
+	"datanode/business/modules/user4rpc"
+	"datanode/business/rpcservice"
 	"datanode/pakkusys"
-	"pakku/ipakku"
+
+	"github.com/wup364/pakku/ipakku"
 )
 
 // RegisterModules 注册需要加载的模块

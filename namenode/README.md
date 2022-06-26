@@ -17,7 +17,7 @@
 | namenode | NAMENODE | `空` | root账号可以调用所有接口 |
 | namenode | OPENAPI | `空` | 可以调用开放的api接口, opensdk使用 |
 
-    用户信息数据库配置 `user4rpc.store.driver=sqlite3` 和 `user4rpc.store.datasource=${appname}#user?cache=shared`, 可以更改成mysql的连接;
+    用户信息数据库配置 `store.user4rpc.driver=sqlite3` 和 `store.user4rpc.datasource=${appname}#user?cache=shared`, 可以更改成mysql的连接;
 
 ### 配置清单
 

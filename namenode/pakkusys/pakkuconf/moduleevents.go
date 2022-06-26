@@ -13,8 +13,9 @@ package pakkuconf
 import (
 	"namenode/ifilestorage"
 	"namenode/pakkusys"
-	"pakku/ipakku"
-	"pakku/utils/logs"
+
+	"github.com/wup364/pakku/ipakku"
+	"github.com/wup364/pakku/utils/logs"
 )
 
 // crateDefaultUsers 创建默认用户
@@ -22,7 +23,7 @@ func crateDefaultUsers() pakkusys.ModuleEvent {
 	return pakkusys.ModuleEvent{
 		Module: "User4RPC",
 		Event:  ipakku.ModuleEventOnSetup,
-		Handler: func(module interface{}, loader ipakku.Loader) {
+		Handler: func(module interface{}, _ ipakku.Loader) {
 			umg := module.(ifilestorage.UserManage)
 			if err := umg.Clear(); nil == err {
 				err = umg.AddUser(&ifilestorage.CreateUserBo{

@@ -13,9 +13,10 @@ import (
 	"fmt"
 	"opensdk"
 	"os"
-	"pakku/modules/appconfig/jsonconfig"
-	"pakku/utils/strutil"
 	"strings"
+
+	"github.com/wup364/pakku/modules/appconfig/jsonconfig"
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 // NewShellSession 建立新会话

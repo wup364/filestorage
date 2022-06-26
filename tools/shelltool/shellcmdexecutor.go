@@ -14,14 +14,15 @@ import (
 	"fmt"
 	"opensdk"
 	"os"
-	"pakku/utils/fileutil"
-	"pakku/utils/strutil"
 	"path"
 	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/wup364/pakku/utils/fileutil"
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 // NewShellCmdExecutor 各种命令行指令
