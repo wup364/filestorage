@@ -14,7 +14,7 @@
 
 | 所属程序 |  账号密码 |  密码  |  角色  |  描述  |
 | ------- | ------|------ | ------ | ------ |
-| namenode | NAMENODE | `空` | NAMENODE |可以调用所有接口(包括管理接口) |
+| namenode | NAMENODE | `空` | NAMENODE | 管理账号, 可以操作账户信息, 但不可以操作文件类接口 |
 | namenode | DATANODE | `空` | DATANODE | datanode连接时使用, 可以调用内部接口 |
 | namenode | OPENAPI | `空` | OPENAPI |  调用开放api接口时使用, 可以调用文件部分接口 |
 
