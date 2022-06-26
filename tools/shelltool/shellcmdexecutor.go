@@ -12,7 +12,6 @@ package main
 import (
 	"errors"
 	"fmt"
-	"opensdk"
 	"os"
 	"path"
 	"path/filepath"
@@ -20,6 +19,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/wup364/filestorage/opensdk"
 
 	"github.com/wup364/pakku/utils/fileutil"
 	"github.com/wup364/pakku/utils/strutil"

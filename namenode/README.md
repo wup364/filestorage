@@ -12,22 +12,24 @@
 
 ### 服务鉴权
 
-| 所属程序 |  账号密码 |  密码  |  描述  |
-| ------- | ------|------ | ------ |
-| namenode | NAMENODE | `空` | root账号可以调用所有接口 |
-| namenode | OPENAPI | `空` | 可以调用开放的api接口, opensdk使用 |
+| 所属程序 |  账号密码 |  密码  |  角色  |  描述  |
+| ------- | ------|------ | ------ | ------ |
+| namenode | NAMENODE | `空` | Admin |可以调用所有接口(包括管理接口) |
+| namenode | DATANODE | `空` | DataNode | datanode连接时使用, 可以调用内部接口 |
+| namenode | OPENAPI | `空` | OpenAPI |  调用开放api接口时使用, 可以调用文件部分接口 |
 
-    用户信息数据库配置 `store.user4rpc.driver=sqlite3` 和 `store.user4rpc.datasource=${appname}#user?cache=shared`, 可以更改成mysql的连接;
+    1) 初次使用时, 在namenode启动成功后, 可使用`shelltool`连接服务器进行管理.
+    2) 用户信息数据库配置 `store.user4rpc.driver=sqlite3` 和 `store.user4rpc.datasource=${appname}#user?cache=shared`, 可以更改成mysql的连接.
 
 ### 配置清单
 
 |  所属程序 |  KEY  |  默认值  |  可选值  |  描述 |
 | ------ | ------ | ------ | ---- | ---- |
 | namenode | `listen.rpc.address` | 127.0.0.1:5051 | `*` | RPC服务监听地址 |
-| namenode | `store.deletedaddr.driver` | sqlite3 | `sqlite3\|mysql` | 用于记录已删除的文件地址 |
-| namenode | `store.deletedaddr.datasource` | ${appname}#deleted?cache=shared | `sqlite3\|mysql支持的地址` | 用于记录已删除的文件地址 |
-| namenode | `store.filenames.driver` | sqlite3 | `sqlite3\|mysql` | 记录完整的文件树信息 |
-| namenode | `store.filenames.datasource` | ${appname}#filenames?cache=shared | `sqlite3\|mysql支持的地址` | 记录完整的文件树信息 |
+| namenode | `store.deletedaddr.driver` | sqlite3 | `sqlite3\|mysql` | 已删除的文件地址信息 |
+| namenode | `store.deletedaddr.datasource` | ${appname}#deleted?cache=shared | `sqlite3\|mysql支持的地址` | 已删除的文件地址信息 |
+| namenode | `store.filenames.driver` | sqlite3 | `sqlite3\|mysql` | 完整的文件树信息 |
+| namenode | `store.filenames.datasource` | ${appname}#filenames?cache=shared | `sqlite3\|mysql支持的地址` | 完整的文件树信息 |
 
     . 配置使用json格式存储, 格式示例: 
         `{
@@ -47,6 +49,8 @@
 | 5000049 | 49 | 5000000 |  8 \| 32 | 3174.2M |
 
 ### RPC接口列表
+
+#### 文件接口
 
 |  Description |    Method    |
 | ------------ | ------------ |

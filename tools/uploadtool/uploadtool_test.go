@@ -12,8 +12,9 @@
 package main
 
 import (
-	"opensdk"
 	"testing"
+
+	"github.com/wup364/filestorage/opensdk"
 
 	"github.com/wup364/pakku/utils/strutil"
 )

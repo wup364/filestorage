@@ -13,10 +13,11 @@ import (
 	"errors"
 	"io"
 	"net/http"
-	"opensdk/utils"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/wup364/filestorage/opensdk/utils"
 )
 
 // NewDataStream NewDataStream

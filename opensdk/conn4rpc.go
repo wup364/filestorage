@@ -12,7 +12,8 @@ package opensdk
 import (
 	"errors"
 	"net/rpc"
-	"opensdk/utils"
+
+	"github.com/wup364/filestorage/opensdk/utils"
 )
 
 var ErrorAuthentication = errors.New("authentication failed")
