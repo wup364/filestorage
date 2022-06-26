@@ -14,8 +14,9 @@ package main
 import (
 	"errors"
 	"io"
-	"opensdk"
 	"path/filepath"
+
+	"github.com/wup364/filestorage/opensdk"
 
 	"github.com/wup364/pakku/utils/fileutil"
 	"github.com/wup364/pakku/utils/logs"

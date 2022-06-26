@@ -25,17 +25,18 @@
 | 所属程序 | KEY                         | 默认值                           | 可选值                     | 描述                                       |
 | -------- | --------------------------- | -------------------------------- | -------------------------- | ------------------------------------------ |
 | datanode | `nodeno`                    | DN101                            | `在同一套系统中名字不重复` | 用于在 namenode 中注册节点                 |
+| datanode | `namenode.rpc.address`      | 127.0.0.1:5051                   | `namenode服务地址`         | 用于 datanode 连接 namenode                |
+| datanode | `namenode.rpc.user`         | `DATANODE`                       | `namenode上存在的DATANODE角色账户`| 用于 datanode 连接 namenode          |
+| datanode | `namenode.rpc.pwd`          | `空`                             | `密码`                     | 用于 datanode 连接 namenode                 |
 | datanode | `listen.rpc.address`        | 127.0.0.1:5061                   | `*`                        | RPC 服务监听地址                           |
 | datanode | `listen.rpc.endpoint`       | `{listen.http.address}`          | `*`                        | RPC 服务访问地址, 可设为仅 namenode 可访问 |
 | datanode | `listen.http.address`       | 127.0.0.1:5062                   | `*`                        | HTTP 服务监听地址                          |
 | datanode | `listen.http.endpoint`      | `http://{listen.http.address}`   | `*`                        | HTTP 服务访问地址, 带协议头                |
-| datanode | `store.datanode.driver`     | sqlite3                          | `sqlite3\|mysql`           | 用于记录文件分片信息                       |
-| datanode | `store.datanode.datasource` | ${appname}#datanode?cache=shared | `sqlite3\|mysql支持的地址` | 用于记录文件分片信息                       |
-| datanode | `store.datahash.driver`     | sqlite3                          | `sqlite3\|mysql`           | 文件 hash 信息索引                         |
-| datanode | `store.datahash.datasource` | ${appname}#datahash?cache=shared | `sqlite3\|mysql支持的地址` | 文件 hash 信息索引                         |
-| datanode | `clearsetting.deletefile`   | false                            | `false\|true`              | 标记是否清理已删除文件                     |
-| datanode | `namenode.rpc.address`      | 127.0.0.1:5051                   | `namenode服务地址`         | 用于 datanode 连接 namenode                |
-| datanode | `namenode.rpc.pwd`          | `空`                             | `密码`                     | 标记是否清理已删除文件                     |
+| datanode | `store.datanode.driver`     | sqlite3                          | `sqlite3\|mysql`           | 文件对应的块信息                       |
+| datanode | `store.datanode.datasource` | ${appname}#datanode?cache=shared | `sqlite3\|mysql支持的地址`  | 文件对应的块信息                       |
+| datanode | `store.datahash.driver`     | sqlite3                          | `sqlite3\|mysql`           | 文件块hash值信息索引                         |
+| datanode | `store.datahash.datasource` | ${appname}#datahash?cache=shared | `sqlite3\|mysql支持的地址`  | 文件块hash值信息索引                         |
+| datanode | `clearsetting.deletefile`   | false                            | `false\|true`              | 标记在清理已删除文件时, 是否物理删除磁盘文件      |
 
     . 配置使用json格式存储, 格式示例:
         `{

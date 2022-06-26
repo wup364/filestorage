@@ -14,10 +14,11 @@ package example
 import (
 	"fmt"
 	"io"
-	"opensdk"
-	"opensdk/utils"
 	"os"
 	"strings"
+
+	"github.com/wup364/filestorage/opensdk"
+	"github.com/wup364/filestorage/opensdk/utils"
 )
 
 // UploadFile 上传文件

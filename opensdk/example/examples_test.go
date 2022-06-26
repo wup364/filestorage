@@ -11,10 +11,11 @@ package example
 
 import (
 	"fmt"
-	"opensdk"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/wup364/filestorage/opensdk"
 )
 
 func TestUploadFile(t *testing.T) {

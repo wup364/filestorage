@@ -14,10 +14,11 @@ package main
 import (
 	"flag"
 	"io"
-	"opensdk"
-	"opensdk/utils"
 	"path/filepath"
 	"strings"
+
+	"github.com/wup364/filestorage/opensdk"
+	"github.com/wup364/filestorage/opensdk/utils"
 
 	"github.com/wup364/pakku/modules/appconfig/jsonconfig"
 	"github.com/wup364/pakku/utils/fileutil"

@@ -11,9 +11,10 @@ package main
 
 import (
 	"fmt"
-	"opensdk"
 	"os"
 	"strings"
+
+	"github.com/wup364/filestorage/opensdk"
 
 	"github.com/wup364/pakku/modules/appconfig/jsonconfig"
 	"github.com/wup364/pakku/utils/strutil"
