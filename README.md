@@ -11,3 +11,16 @@
 | opensdk      | [源码] 开放SDK, 提供了系统的核心服务接口封装                                               |
 | tools        | [源码] 工具集合包, 可对系统进行管理和测试                                                  |
 | bin          | [编译结果] 所有服务编译好的二进制可执行文件(x64|x86)                                        |
+
+## 快速启动
+
+    1) 下载`bin`目录下的`namenode`、`datanode`、`shelltool` (也可以下载源码编译)
+    2) 先运行`namenode`启动元数据服务后再运行`datanode`启动文件存取服务
+    3) 打开终端, 输入`shelltool OPENAPI@127.0.0.1:5051`通过控制台运行shell工具
+    4) 输入密码(默认空)后回车, 若提示登录成功则说明服务启动成功
+    5) 输入ls查看目录、mkdir创建文件夹、 rm删除文件|文件夹、help获得更多指令提示
+    
+    其他:
+
+    1) 若需要使用管理性操作, 如: 更改账户信息等, 则需要切换到NAMENODE账户进行登录, 如: `shelltool NAMENODE@127.0.0.1:5051`
+    2) 若需要一个页面类的应用来管理文件, 这里可以使用 [GoFileService](https://github.com/wup364/GoFileService)
