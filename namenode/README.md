@@ -14,9 +14,9 @@
 
 | 所属程序 |  账号密码 |  密码  |  角色  |  描述  |
 | ------- | ------|------ | ------ | ------ |
-| namenode | NAMENODE | `空` | Admin |可以调用所有接口(包括管理接口) |
-| namenode | DATANODE | `空` | DataNode | datanode连接时使用, 可以调用内部接口 |
-| namenode | OPENAPI | `空` | OpenAPI |  调用开放api接口时使用, 可以调用文件部分接口 |
+| namenode | NAMENODE | `空` | NAMENODE |可以调用所有接口(包括管理接口) |
+| namenode | DATANODE | `空` | DATANODE | datanode连接时使用, 可以调用内部接口 |
+| namenode | OPENAPI | `空` | OPENAPI |  调用开放api接口时使用, 可以调用文件部分接口 |
 
     1) 初次使用时, 在namenode启动成功后, 可使用`shelltool`连接服务器进行管理.
     2) 用户信息数据库配置 `store.user4rpc.driver=sqlite3` 和 `store.user4rpc.datasource=${appname}#user?cache=shared`, 可以更改成mysql的连接.
