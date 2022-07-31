@@ -24,7 +24,7 @@ import (
 func NewDataStream() *DataStream {
 	return &DataStream{
 		httpclient: &http.Client{
-			Timeout: time.Minute * 5,
+			Timeout: time.Duration(0),
 		},
 		nodes: utils.NewSafeMap(),
 	}
