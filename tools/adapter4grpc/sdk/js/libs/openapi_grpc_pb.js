@@ -3,73 +3,6 @@
 'use strict';
 var grpc = require('@grpc/grpc-js');
 var openapi_pb = require('./openapi_pb.js');
-var dto_comm_pb = require('./dto_comm_pb.js');
-
-function serialize_dto_QryOfString(arg) {
-  if (!(arg instanceof dto_comm_pb.QryOfString)) {
-    throw new Error('Expected argument of type dto.QryOfString');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_dto_QryOfString(buffer_arg) {
-  return dto_comm_pb.QryOfString.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_dto_QryOfStrings(arg) {
-  if (!(arg instanceof dto_comm_pb.QryOfStrings)) {
-    throw new Error('Expected argument of type dto.QryOfStrings');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_dto_QryOfStrings(buffer_arg) {
-  return dto_comm_pb.QryOfStrings.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_dto_QueryLimitOfString(arg) {
-  if (!(arg instanceof dto_comm_pb.QueryLimitOfString)) {
-    throw new Error('Expected argument of type dto.QueryLimitOfString');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_dto_QueryLimitOfString(buffer_arg) {
-  return dto_comm_pb.QueryLimitOfString.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_dto_ResultOfBool(arg) {
-  if (!(arg instanceof dto_comm_pb.ResultOfBool)) {
-    throw new Error('Expected argument of type dto.ResultOfBool');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_dto_ResultOfBool(buffer_arg) {
-  return dto_comm_pb.ResultOfBool.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_dto_ResultOfInt64(arg) {
-  if (!(arg instanceof dto_comm_pb.ResultOfInt64)) {
-    throw new Error('Expected argument of type dto.ResultOfInt64');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_dto_ResultOfInt64(buffer_arg) {
-  return dto_comm_pb.ResultOfInt64.deserializeBinary(new Uint8Array(buffer_arg));
-}
-
-function serialize_dto_ResultOfString(arg) {
-  if (!(arg instanceof dto_comm_pb.ResultOfString)) {
-    throw new Error('Expected argument of type dto.ResultOfString');
-  }
-  return Buffer.from(arg.serializeBinary());
-}
-
-function deserialize_dto_ResultOfString(buffer_arg) {
-  return dto_comm_pb.ResultOfString.deserializeBinary(new Uint8Array(buffer_arg));
-}
 
 function serialize_service_CopyCmd(arg) {
   if (!(arg instanceof openapi_pb.CopyCmd)) {
@@ -115,6 +48,28 @@ function deserialize_service_MoveCmd(buffer_arg) {
   return openapi_pb.MoveCmd.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_service_QryOfString(arg) {
+  if (!(arg instanceof openapi_pb.QryOfString)) {
+    throw new Error('Expected argument of type service.QryOfString');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_service_QryOfString(buffer_arg) {
+  return openapi_pb.QryOfString.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_service_QryOfStrings(arg) {
+  if (!(arg instanceof openapi_pb.QryOfStrings)) {
+    throw new Error('Expected argument of type service.QryOfStrings');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_service_QryOfStrings(buffer_arg) {
+  return openapi_pb.QryOfStrings.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_service_QryStreamURLCmd(arg) {
   if (!(arg instanceof openapi_pb.QryStreamURLCmd)) {
     throw new Error('Expected argument of type service.QryStreamURLCmd');
@@ -126,6 +81,17 @@ function deserialize_service_QryStreamURLCmd(buffer_arg) {
   return openapi_pb.QryStreamURLCmd.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
+function serialize_service_QueryLimitOfString(arg) {
+  if (!(arg instanceof openapi_pb.QueryLimitOfString)) {
+    throw new Error('Expected argument of type service.QueryLimitOfString');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_service_QueryLimitOfString(buffer_arg) {
+  return openapi_pb.QueryLimitOfString.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
 function serialize_service_RenameCmd(arg) {
   if (!(arg instanceof openapi_pb.RenameCmd)) {
     throw new Error('Expected argument of type service.RenameCmd');
@@ -135,6 +101,39 @@ function serialize_service_RenameCmd(arg) {
 
 function deserialize_service_RenameCmd(buffer_arg) {
   return openapi_pb.RenameCmd.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_service_ResultOfBool(arg) {
+  if (!(arg instanceof openapi_pb.ResultOfBool)) {
+    throw new Error('Expected argument of type service.ResultOfBool');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_service_ResultOfBool(buffer_arg) {
+  return openapi_pb.ResultOfBool.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_service_ResultOfInt64(arg) {
+  if (!(arg instanceof openapi_pb.ResultOfInt64)) {
+    throw new Error('Expected argument of type service.ResultOfInt64');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_service_ResultOfInt64(buffer_arg) {
+  return openapi_pb.ResultOfInt64.deserializeBinary(new Uint8Array(buffer_arg));
+}
+
+function serialize_service_ResultOfString(arg) {
+  if (!(arg instanceof openapi_pb.ResultOfString)) {
+    throw new Error('Expected argument of type service.ResultOfString');
+  }
+  return Buffer.from(arg.serializeBinary());
+}
+
+function deserialize_service_ResultOfString(buffer_arg) {
+  return openapi_pb.ResultOfString.deserializeBinary(new Uint8Array(buffer_arg));
 }
 
 function serialize_service_StreamToken(arg) {
@@ -177,54 +176,54 @@ var OpenApiService = exports.OpenApiService = {
     path: '/service.OpenApi/IsDir',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QryOfString,
-    responseType: dto_comm_pb.ResultOfBool,
-    requestSerialize: serialize_dto_QryOfString,
-    requestDeserialize: deserialize_dto_QryOfString,
-    responseSerialize: serialize_dto_ResultOfBool,
-    responseDeserialize: deserialize_dto_ResultOfBool,
+    requestType: openapi_pb.QryOfString,
+    responseType: openapi_pb.ResultOfBool,
+    requestSerialize: serialize_service_QryOfString,
+    requestDeserialize: deserialize_service_QryOfString,
+    responseSerialize: serialize_service_ResultOfBool,
+    responseDeserialize: deserialize_service_ResultOfBool,
   },
   isFile: {
     path: '/service.OpenApi/IsFile',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QryOfString,
-    responseType: dto_comm_pb.ResultOfBool,
-    requestSerialize: serialize_dto_QryOfString,
-    requestDeserialize: deserialize_dto_QryOfString,
-    responseSerialize: serialize_dto_ResultOfBool,
-    responseDeserialize: deserialize_dto_ResultOfBool,
+    requestType: openapi_pb.QryOfString,
+    responseType: openapi_pb.ResultOfBool,
+    requestSerialize: serialize_service_QryOfString,
+    requestDeserialize: deserialize_service_QryOfString,
+    responseSerialize: serialize_service_ResultOfBool,
+    responseDeserialize: deserialize_service_ResultOfBool,
   },
   isExist: {
     path: '/service.OpenApi/IsExist',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QryOfString,
-    responseType: dto_comm_pb.ResultOfBool,
-    requestSerialize: serialize_dto_QryOfString,
-    requestDeserialize: deserialize_dto_QryOfString,
-    responseSerialize: serialize_dto_ResultOfBool,
-    responseDeserialize: deserialize_dto_ResultOfBool,
+    requestType: openapi_pb.QryOfString,
+    responseType: openapi_pb.ResultOfBool,
+    requestSerialize: serialize_service_QryOfString,
+    requestDeserialize: deserialize_service_QryOfString,
+    responseSerialize: serialize_service_ResultOfBool,
+    responseDeserialize: deserialize_service_ResultOfBool,
   },
   getFileSize: {
     path: '/service.OpenApi/GetFileSize',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QryOfString,
-    responseType: dto_comm_pb.ResultOfInt64,
-    requestSerialize: serialize_dto_QryOfString,
-    requestDeserialize: deserialize_dto_QryOfString,
-    responseSerialize: serialize_dto_ResultOfInt64,
-    responseDeserialize: deserialize_dto_ResultOfInt64,
+    requestType: openapi_pb.QryOfString,
+    responseType: openapi_pb.ResultOfInt64,
+    requestSerialize: serialize_service_QryOfString,
+    requestDeserialize: deserialize_service_QryOfString,
+    responseSerialize: serialize_service_ResultOfInt64,
+    responseDeserialize: deserialize_service_ResultOfInt64,
   },
   getNode: {
     path: '/service.OpenApi/GetNode',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QryOfString,
+    requestType: openapi_pb.QryOfString,
     responseType: openapi_pb.TNode,
-    requestSerialize: serialize_dto_QryOfString,
-    requestDeserialize: deserialize_dto_QryOfString,
+    requestSerialize: serialize_service_QryOfString,
+    requestDeserialize: deserialize_service_QryOfString,
     responseSerialize: serialize_service_TNode,
     responseDeserialize: deserialize_service_TNode,
   },
@@ -232,10 +231,10 @@ var OpenApiService = exports.OpenApiService = {
     path: '/service.OpenApi/GetNodes',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QryOfStrings,
+    requestType: openapi_pb.QryOfStrings,
     responseType: openapi_pb.DirNodeListDto,
-    requestSerialize: serialize_dto_QryOfStrings,
-    requestDeserialize: deserialize_dto_QryOfStrings,
+    requestSerialize: serialize_service_QryOfStrings,
+    requestDeserialize: deserialize_service_QryOfStrings,
     responseSerialize: serialize_service_DirNodeListDto,
     responseDeserialize: deserialize_service_DirNodeListDto,
   },
@@ -243,10 +242,10 @@ var OpenApiService = exports.OpenApiService = {
     path: '/service.OpenApi/GetDirNameList',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QueryLimitOfString,
+    requestType: openapi_pb.QueryLimitOfString,
     responseType: openapi_pb.DirNameListDto,
-    requestSerialize: serialize_dto_QueryLimitOfString,
-    requestDeserialize: deserialize_dto_QueryLimitOfString,
+    requestSerialize: serialize_service_QueryLimitOfString,
+    requestDeserialize: deserialize_service_QueryLimitOfString,
     responseSerialize: serialize_service_DirNameListDto,
     responseDeserialize: deserialize_service_DirNameListDto,
   },
@@ -254,10 +253,10 @@ var OpenApiService = exports.OpenApiService = {
     path: '/service.OpenApi/GetDirNodeList',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QueryLimitOfString,
+    requestType: openapi_pb.QueryLimitOfString,
     responseType: openapi_pb.DirNodeListDto,
-    requestSerialize: serialize_dto_QueryLimitOfString,
-    requestDeserialize: deserialize_dto_QueryLimitOfString,
+    requestSerialize: serialize_service_QueryLimitOfString,
+    requestDeserialize: deserialize_service_QueryLimitOfString,
     responseSerialize: serialize_service_DirNodeListDto,
     responseDeserialize: deserialize_service_DirNodeListDto,
   },
@@ -265,65 +264,65 @@ var OpenApiService = exports.OpenApiService = {
     path: '/service.OpenApi/DoMkDir',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QryOfString,
-    responseType: dto_comm_pb.ResultOfString,
-    requestSerialize: serialize_dto_QryOfString,
-    requestDeserialize: deserialize_dto_QryOfString,
-    responseSerialize: serialize_dto_ResultOfString,
-    responseDeserialize: deserialize_dto_ResultOfString,
+    requestType: openapi_pb.QryOfString,
+    responseType: openapi_pb.ResultOfString,
+    requestSerialize: serialize_service_QryOfString,
+    requestDeserialize: deserialize_service_QryOfString,
+    responseSerialize: serialize_service_ResultOfString,
+    responseDeserialize: deserialize_service_ResultOfString,
   },
   doDelete: {
     path: '/service.OpenApi/DoDelete',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QryOfString,
-    responseType: dto_comm_pb.ResultOfBool,
-    requestSerialize: serialize_dto_QryOfString,
-    requestDeserialize: deserialize_dto_QryOfString,
-    responseSerialize: serialize_dto_ResultOfBool,
-    responseDeserialize: deserialize_dto_ResultOfBool,
+    requestType: openapi_pb.QryOfString,
+    responseType: openapi_pb.ResultOfBool,
+    requestSerialize: serialize_service_QryOfString,
+    requestDeserialize: deserialize_service_QryOfString,
+    responseSerialize: serialize_service_ResultOfBool,
+    responseDeserialize: deserialize_service_ResultOfBool,
   },
   doRename: {
     path: '/service.OpenApi/DoRename',
     requestStream: false,
     responseStream: false,
     requestType: openapi_pb.RenameCmd,
-    responseType: dto_comm_pb.ResultOfBool,
+    responseType: openapi_pb.ResultOfBool,
     requestSerialize: serialize_service_RenameCmd,
     requestDeserialize: deserialize_service_RenameCmd,
-    responseSerialize: serialize_dto_ResultOfBool,
-    responseDeserialize: deserialize_dto_ResultOfBool,
+    responseSerialize: serialize_service_ResultOfBool,
+    responseDeserialize: deserialize_service_ResultOfBool,
   },
   doCopy: {
     path: '/service.OpenApi/DoCopy',
     requestStream: false,
     responseStream: false,
     requestType: openapi_pb.MoveCmd,
-    responseType: dto_comm_pb.ResultOfString,
+    responseType: openapi_pb.ResultOfString,
     requestSerialize: serialize_service_MoveCmd,
     requestDeserialize: deserialize_service_MoveCmd,
-    responseSerialize: serialize_dto_ResultOfString,
-    responseDeserialize: deserialize_dto_ResultOfString,
+    responseSerialize: serialize_service_ResultOfString,
+    responseDeserialize: deserialize_service_ResultOfString,
   },
   doMove: {
     path: '/service.OpenApi/DoMove',
     requestStream: false,
     responseStream: false,
     requestType: openapi_pb.CopyCmd,
-    responseType: dto_comm_pb.ResultOfBool,
+    responseType: openapi_pb.ResultOfBool,
     requestSerialize: serialize_service_CopyCmd,
     requestDeserialize: deserialize_service_CopyCmd,
-    responseSerialize: serialize_dto_ResultOfBool,
-    responseDeserialize: deserialize_dto_ResultOfBool,
+    responseSerialize: serialize_service_ResultOfBool,
+    responseDeserialize: deserialize_service_ResultOfBool,
   },
   doQueryToken: {
     path: '/service.OpenApi/DoQueryToken',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QryOfString,
+    requestType: openapi_pb.QryOfString,
     responseType: openapi_pb.StreamToken,
-    requestSerialize: serialize_dto_QryOfString,
-    requestDeserialize: deserialize_dto_QryOfString,
+    requestSerialize: serialize_service_QryOfString,
+    requestDeserialize: deserialize_service_QryOfString,
     responseSerialize: serialize_service_StreamToken,
     responseDeserialize: deserialize_service_StreamToken,
   },
@@ -331,10 +330,10 @@ var OpenApiService = exports.OpenApiService = {
     path: '/service.OpenApi/DoAskReadToken',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QryOfString,
+    requestType: openapi_pb.QryOfString,
     responseType: openapi_pb.StreamToken,
-    requestSerialize: serialize_dto_QryOfString,
-    requestDeserialize: deserialize_dto_QryOfString,
+    requestSerialize: serialize_service_QryOfString,
+    requestDeserialize: deserialize_service_QryOfString,
     responseSerialize: serialize_service_StreamToken,
     responseDeserialize: deserialize_service_StreamToken,
   },
@@ -342,10 +341,10 @@ var OpenApiService = exports.OpenApiService = {
     path: '/service.OpenApi/DoAskWriteToken',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QryOfString,
+    requestType: openapi_pb.QryOfString,
     responseType: openapi_pb.StreamToken,
-    requestSerialize: serialize_dto_QryOfString,
-    requestDeserialize: deserialize_dto_QryOfString,
+    requestSerialize: serialize_service_QryOfString,
+    requestDeserialize: deserialize_service_QryOfString,
     responseSerialize: serialize_service_StreamToken,
     responseDeserialize: deserialize_service_StreamToken,
   },
@@ -353,10 +352,10 @@ var OpenApiService = exports.OpenApiService = {
     path: '/service.OpenApi/DoRefreshToken',
     requestStream: false,
     responseStream: false,
-    requestType: dto_comm_pb.QryOfString,
+    requestType: openapi_pb.QryOfString,
     responseType: openapi_pb.StreamToken,
-    requestSerialize: serialize_dto_QryOfString,
-    requestDeserialize: deserialize_dto_QryOfString,
+    requestSerialize: serialize_service_QryOfString,
+    requestDeserialize: deserialize_service_QryOfString,
     responseSerialize: serialize_service_StreamToken,
     responseDeserialize: deserialize_service_StreamToken,
   },
@@ -376,22 +375,22 @@ var OpenApiService = exports.OpenApiService = {
     requestStream: false,
     responseStream: false,
     requestType: openapi_pb.QryStreamURLCmd,
-    responseType: dto_comm_pb.ResultOfString,
+    responseType: openapi_pb.ResultOfString,
     requestSerialize: serialize_service_QryStreamURLCmd,
     requestDeserialize: deserialize_service_QryStreamURLCmd,
-    responseSerialize: serialize_dto_ResultOfString,
-    responseDeserialize: deserialize_dto_ResultOfString,
+    responseSerialize: serialize_service_ResultOfString,
+    responseDeserialize: deserialize_service_ResultOfString,
   },
   getWriteStreamURL: {
     path: '/service.OpenApi/GetWriteStreamURL',
     requestStream: false,
     responseStream: false,
     requestType: openapi_pb.QryStreamURLCmd,
-    responseType: dto_comm_pb.ResultOfString,
+    responseType: openapi_pb.ResultOfString,
     requestSerialize: serialize_service_QryStreamURLCmd,
     requestDeserialize: deserialize_service_QryStreamURLCmd,
-    responseSerialize: serialize_dto_ResultOfString,
-    responseDeserialize: deserialize_dto_ResultOfString,
+    responseSerialize: serialize_service_ResultOfString,
+    responseDeserialize: deserialize_service_ResultOfString,
   },
 };
 

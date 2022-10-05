@@ -2,7 +2,6 @@ package impl
 
 import (
 	"context"
-	"fstools/adapter4grpc/server/dto"
 	"fstools/adapter4grpc/server/service"
 
 	"github.com/wup364/filestorage/opensdk"
@@ -13,23 +12,23 @@ type OpenApiServerImpl struct {
 	sdk opensdk.IOpenApi
 }
 
-func (o *OpenApiServerImpl) IsDir(ctx context.Context, dto *dto.QryOfString) (res *dto.ResultOfBool, err error) {
+func (o *OpenApiServerImpl) IsDir(ctx context.Context, dto *service.QryOfString) (res *service.ResultOfBool, err error) {
 	res.Result, err = o.sdk.IsDir(dto.Query)
 	return
 }
-func (o *OpenApiServerImpl) IsFile(ctx context.Context, dto *dto.QryOfString) (res *dto.ResultOfBool, err error) {
+func (o *OpenApiServerImpl) IsFile(ctx context.Context, dto *service.QryOfString) (res *service.ResultOfBool, err error) {
 	res.Result, err = o.sdk.IsFile(dto.Query)
 	return
 }
-func (o *OpenApiServerImpl) IsExist(ctx context.Context, dto *dto.QryOfString) (res *dto.ResultOfBool, err error) {
+func (o *OpenApiServerImpl) IsExist(ctx context.Context, dto *service.QryOfString) (res *service.ResultOfBool, err error) {
 	res.Result, err = o.sdk.IsExist(dto.Query)
 	return
 }
-func (o *OpenApiServerImpl) GetFileSize(ctx context.Context, dto *dto.QryOfString) (res *dto.ResultOfInt64, err error) {
+func (o *OpenApiServerImpl) GetFileSize(ctx context.Context, dto *service.QryOfString) (res *service.ResultOfInt64, err error) {
 	res.Result, err = o.sdk.GetFileSize(dto.Query)
 	return
 }
-func (o *OpenApiServerImpl) GetNode(ctx context.Context, dto *dto.QryOfString) (res *service.TNode, err error) {
+func (o *OpenApiServerImpl) GetNode(ctx context.Context, dto *service.QryOfString) (res *service.TNode, err error) {
 	var node *opensdk.TNode
 	if node, err = o.sdk.GetNode(dto.Query); nil == err {
 		res = &service.TNode{
@@ -46,7 +45,7 @@ func (o *OpenApiServerImpl) GetNode(ctx context.Context, dto *dto.QryOfString) (
 	}
 	return
 }
-func (o *OpenApiServerImpl) GetNodes(ctx context.Context, dto *dto.QryOfStrings) (res *service.DirNodeListDto, err error) {
+func (o *OpenApiServerImpl) GetNodes(ctx context.Context, dto *service.QryOfStrings) (res *service.DirNodeListDto, err error) {
 	var nodes []opensdk.TNode
 	if nodes, err = o.sdk.GetNodes(dto.Query); nil == err && len(nodes) > 0 {
 		res.Total = int64(len(nodes))
@@ -67,7 +66,7 @@ func (o *OpenApiServerImpl) GetNodes(ctx context.Context, dto *dto.QryOfStrings)
 	}
 	return
 }
-func (o *OpenApiServerImpl) GetDirNameList(ctx context.Context, dto *dto.QueryLimitOfString) (res *service.DirNameListDto, err error) {
+func (o *OpenApiServerImpl) GetDirNameList(ctx context.Context, dto *service.QueryLimitOfString) (res *service.DirNameListDto, err error) {
 	var nodes *opensdk.DirNameListDto
 	if nodes, err = o.sdk.GetDirNameList(dto.Query, int(dto.Limit), int(dto.Offset)); nil == err && nodes.Total > 0 {
 		res.Total = int64(nodes.Total)
@@ -75,7 +74,7 @@ func (o *OpenApiServerImpl) GetDirNameList(ctx context.Context, dto *dto.QueryLi
 	}
 	return
 }
-func (o *OpenApiServerImpl) GetDirNodeList(ctx context.Context, dto *dto.QueryLimitOfString) (res *service.DirNodeListDto, err error) {
+func (o *OpenApiServerImpl) GetDirNodeList(ctx context.Context, dto *service.QueryLimitOfString) (res *service.DirNodeListDto, err error) {
 	var nodes *opensdk.DirNodeListDto
 	if nodes, err = o.sdk.GetDirNodeList(dto.Query, int(dto.Limit), int(dto.Offset)); nil == err && nodes.Total > 0 {
 		res.Total = int64(nodes.Total)
@@ -96,33 +95,33 @@ func (o *OpenApiServerImpl) GetDirNodeList(ctx context.Context, dto *dto.QueryLi
 	}
 	return
 }
-func (o *OpenApiServerImpl) DoMkDir(ctx context.Context, dto *dto.QryOfString) (res *dto.ResultOfString, err error) {
+func (o *OpenApiServerImpl) DoMkDir(ctx context.Context, dto *service.QryOfString) (res *service.ResultOfString, err error) {
 	res.Result, err = o.sdk.DoMkDir(dto.Query)
 	return
 }
-func (o *OpenApiServerImpl) DoDelete(ctx context.Context, dto *dto.QryOfString) (res *dto.ResultOfBool, err error) {
+func (o *OpenApiServerImpl) DoDelete(ctx context.Context, dto *service.QryOfString) (res *service.ResultOfBool, err error) {
 	if err = o.sdk.DoDelete(dto.Query); nil == err {
 		res.Result = true
 	}
 	return
 }
-func (o *OpenApiServerImpl) DoRename(ctx context.Context, dto *service.RenameCmd) (res *dto.ResultOfBool, err error) {
+func (o *OpenApiServerImpl) DoRename(ctx context.Context, dto *service.RenameCmd) (res *service.ResultOfBool, err error) {
 	if err = o.sdk.DoRename(dto.Src, dto.Dst); nil == err {
 		res.Result = true
 	}
 	return
 }
-func (o *OpenApiServerImpl) DoCopy(ctx context.Context, dto *service.MoveCmd) (res *dto.ResultOfString, err error) {
+func (o *OpenApiServerImpl) DoCopy(ctx context.Context, dto *service.MoveCmd) (res *service.ResultOfString, err error) {
 	res.Result, err = o.sdk.DoCopy(dto.Src, dto.Dst, dto.Override)
 	return
 }
-func (o *OpenApiServerImpl) DoMove(ctx context.Context, dto *service.CopyCmd) (res *dto.ResultOfBool, err error) {
+func (o *OpenApiServerImpl) DoMove(ctx context.Context, dto *service.CopyCmd) (res *service.ResultOfBool, err error) {
 	if err = o.sdk.DoMove(dto.Src, dto.Dst, dto.Override); nil == err {
 		res.Result = true
 	}
 	return
 }
-func (o *OpenApiServerImpl) DoQueryToken(ctx context.Context, dto *dto.QryOfString) (res *service.StreamToken, err error) {
+func (o *OpenApiServerImpl) DoQueryToken(ctx context.Context, dto *service.QryOfString) (res *service.StreamToken, err error) {
 	var tmp *opensdk.StreamToken
 	if tmp, err = o.sdk.DoQueryToken(dto.Query); nil == err {
 		res = &service.StreamToken{
@@ -139,7 +138,7 @@ func (o *OpenApiServerImpl) DoQueryToken(ctx context.Context, dto *dto.QryOfStri
 	}
 	return
 }
-func (o *OpenApiServerImpl) DoAskReadToken(ctx context.Context, dto *dto.QryOfString) (res *service.StreamToken, err error) {
+func (o *OpenApiServerImpl) DoAskReadToken(ctx context.Context, dto *service.QryOfString) (res *service.StreamToken, err error) {
 	var tmp *opensdk.StreamToken
 	if tmp, err = o.sdk.DoAskReadToken(dto.Query); nil == err {
 		res = &service.StreamToken{
@@ -156,7 +155,7 @@ func (o *OpenApiServerImpl) DoAskReadToken(ctx context.Context, dto *dto.QryOfSt
 	}
 	return
 }
-func (o *OpenApiServerImpl) DoAskWriteToken(ctx context.Context, dto *dto.QryOfString) (res *service.StreamToken, err error) {
+func (o *OpenApiServerImpl) DoAskWriteToken(ctx context.Context, dto *service.QryOfString) (res *service.StreamToken, err error) {
 	var tmp *opensdk.StreamToken
 	if tmp, err = o.sdk.DoAskWriteToken(dto.Query); nil == err {
 		res = &service.StreamToken{
@@ -173,7 +172,7 @@ func (o *OpenApiServerImpl) DoAskWriteToken(ctx context.Context, dto *dto.QryOfS
 	}
 	return
 }
-func (o *OpenApiServerImpl) DoRefreshToken(ctx context.Context, dto *dto.QryOfString) (res *service.StreamToken, err error) {
+func (o *OpenApiServerImpl) DoRefreshToken(ctx context.Context, dto *service.QryOfString) (res *service.StreamToken, err error) {
 	var tmp *opensdk.StreamToken
 	if tmp, err = o.sdk.DoRefreshToken(dto.Query); nil == err {
 		res = &service.StreamToken{
@@ -207,11 +206,11 @@ func (o *OpenApiServerImpl) DoSubmitWriteToken(ctx context.Context, dto *service
 	}
 	return
 }
-func (o *OpenApiServerImpl) GetReadStreamURL(ctx context.Context, dto *service.QryStreamURLCmd) (res *dto.ResultOfString, err error) {
+func (o *OpenApiServerImpl) GetReadStreamURL(ctx context.Context, dto *service.QryStreamURLCmd) (res *service.ResultOfString, err error) {
 	res.Result, err = o.sdk.GetReadStreamURL(dto.NodeNo, dto.Token, dto.Endpoint)
 	return
 }
-func (o *OpenApiServerImpl) GetWriteStreamURL(ctx context.Context, dto *service.QryStreamURLCmd) (res *dto.ResultOfString, err error) {
+func (o *OpenApiServerImpl) GetWriteStreamURL(ctx context.Context, dto *service.QryStreamURLCmd) (res *service.ResultOfString, err error) {
 	res.Result, err = o.sdk.GetWriteStreamURL(dto.NodeNo, dto.Token, dto.Endpoint)
 	return
 }

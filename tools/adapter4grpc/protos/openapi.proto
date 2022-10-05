@@ -1,36 +1,34 @@
 syntax = "proto3";
 
-import "dto_comm.proto";
-
 package service;
 option go_package = "server/service;service";
 
  // IOpenApi 开放api
 service OpenApi {
-	rpc IsDir(dto.QryOfString) returns (dto.ResultOfBool) {}
-	rpc IsFile(dto.QryOfString) returns (dto.ResultOfBool) {}
-	rpc IsExist(dto.QryOfString) returns (dto.ResultOfBool) {}
-	rpc GetFileSize(dto.QryOfString) returns (dto.ResultOfInt64) {}
+	rpc IsDir(QryOfString) returns (ResultOfBool) {}
+	rpc IsFile(QryOfString) returns (ResultOfBool) {}
+	rpc IsExist(QryOfString) returns (ResultOfBool) {}
+	rpc GetFileSize(QryOfString) returns (ResultOfInt64) {}
   
-	rpc GetNode(dto.QryOfString) returns (TNode) {}
-	rpc GetNodes(dto.QryOfStrings) returns (DirNodeListDto) {}
-	rpc GetDirNameList(dto.QueryLimitOfString) returns (DirNameListDto) {}
-	rpc GetDirNodeList(dto.QueryLimitOfString) returns (DirNodeListDto) {}
+	rpc GetNode(QryOfString) returns (TNode) {}
+	rpc GetNodes(QryOfStrings) returns (DirNodeListDto) {}
+	rpc GetDirNameList(QueryLimitOfString) returns (DirNameListDto) {}
+	rpc GetDirNodeList(QueryLimitOfString) returns (DirNodeListDto) {}
       
-	rpc DoMkDir(dto.QryOfString) returns (dto.ResultOfString) {}
-	rpc DoDelete(dto.QryOfString) returns (dto.ResultOfBool) {}
-	rpc DoRename(RenameCmd) returns (dto.ResultOfBool) {}
-	rpc DoCopy(MoveCmd) returns (dto.ResultOfString) {}
-	rpc DoMove(CopyCmd) returns (dto.ResultOfBool) {}
+	rpc DoMkDir(QryOfString) returns (ResultOfString) {}
+	rpc DoDelete(QryOfString) returns (ResultOfBool) {}
+	rpc DoRename(RenameCmd) returns (ResultOfBool) {}
+	rpc DoCopy(MoveCmd) returns (ResultOfString) {}
+	rpc DoMove(CopyCmd) returns (ResultOfBool) {}
   
-	rpc DoQueryToken(dto.QryOfString) returns (StreamToken) {}
-	rpc DoAskReadToken(dto.QryOfString) returns (StreamToken) {}
-	rpc DoAskWriteToken(dto.QryOfString) returns (StreamToken) {}
-	rpc DoRefreshToken(dto.QryOfString) returns (StreamToken) {}
+	rpc DoQueryToken(QryOfString) returns (StreamToken) {}
+	rpc DoAskReadToken(QryOfString) returns (StreamToken) {}
+	rpc DoAskWriteToken(QryOfString) returns (StreamToken) {}
+	rpc DoRefreshToken(QryOfString) returns (StreamToken) {}
 	rpc DoSubmitWriteToken(SubmitTokenCmd) returns (TNode) {}
 
-	rpc GetReadStreamURL(QryStreamURLCmd) returns (dto.ResultOfString) {}
-	rpc GetWriteStreamURL(QryStreamURLCmd) returns (dto.ResultOfString) {}
+	rpc GetReadStreamURL(QryStreamURLCmd) returns (ResultOfString) {}
+	rpc GetWriteStreamURL(QryStreamURLCmd) returns (ResultOfString) {}
 }
 
 // service  IServerMG  {
@@ -40,6 +38,40 @@ service OpenApi {
 	// DoDeleteUser(userID string) returns (bool, error){}
 	// DoListAllUsers() returns (*UserListDto, error){}
 // }
+
+// QryOfString 字符查询条件
+message QryOfString {
+  string query = 1;
+}
+
+// QueryLimitOfString 分页查询
+message QueryLimitOfString {
+ string query = 1;
+ int32 limit = 2;
+ int32 offset = 3;
+}
+
+// QryOfStrings Src Paths
+message QryOfStrings {
+ repeated string query = 1;
+}
+
+// ResultOfBool Bool Result
+message ResultOfBool {
+  bool result = 1;
+  string message = 2;
+}
+
+// ResultOfInt64 Int64 Result
+message ResultOfInt64 {
+  int64 result = 1;
+}
+
+// ResultOfString String Result
+message ResultOfString {
+  string result = 1;
+}
+
 
 // RenameCmd 重命名
 message RenameCmd {
