@@ -1,3 +1,4 @@
 bin/.conf
 bin/.datas
 bin/datas
+**/node_modules/**

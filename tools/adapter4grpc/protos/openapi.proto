@@ -1,0 +1,174 @@
+syntax = "proto3";
+
+import "dto_comm.proto";
+
+package service;
+option go_package = "server/service;service";
+
+ // IOpenApi 开放api
+service OpenApi {
+	rpc IsDir(dto.QryOfString) returns (dto.ResultOfBool) {}
+	rpc IsFile(dto.QryOfString) returns (dto.ResultOfBool) {}
+	rpc IsExist(dto.QryOfString) returns (dto.ResultOfBool) {}
+	rpc GetFileSize(dto.QryOfString) returns (dto.ResultOfInt64) {}
+  
+	rpc GetNode(dto.QryOfString) returns (TNode) {}
+	rpc GetNodes(dto.QryOfStrings) returns (DirNodeListDto) {}
+	rpc GetDirNameList(dto.QueryLimitOfString) returns (DirNameListDto) {}
+	rpc GetDirNodeList(dto.QueryLimitOfString) returns (DirNodeListDto) {}
+      
+	rpc DoMkDir(dto.QryOfString) returns (dto.ResultOfString) {}
+	rpc DoDelete(dto.QryOfString) returns (dto.ResultOfBool) {}
+	rpc DoRename(RenameCmd) returns (dto.ResultOfBool) {}
+	rpc DoCopy(MoveCmd) returns (dto.ResultOfString) {}
+	rpc DoMove(CopyCmd) returns (dto.ResultOfBool) {}
+  
+	rpc DoQueryToken(dto.QryOfString) returns (StreamToken) {}
+	rpc DoAskReadToken(dto.QryOfString) returns (StreamToken) {}
+	rpc DoAskWriteToken(dto.QryOfString) returns (StreamToken) {}
+	rpc DoRefreshToken(dto.QryOfString) returns (StreamToken) {}
+	rpc DoSubmitWriteToken(SubmitTokenCmd) returns (TNode) {}
+
+	rpc GetReadStreamURL(QryStreamURLCmd) returns (dto.ResultOfString) {}
+	rpc GetWriteStreamURL(QryStreamURLCmd) returns (dto.ResultOfString) {}
+}
+
+// service  IServerMG  {
+	// GetRPCConn() *Conn4RPC
+	// DoCreateUser(user CreateUserBo) returns (bool, error){}
+	// DoUpdatePWD(user, pwd string) returns (bool, error){}
+	// DoDeleteUser(userID string) returns (bool, error){}
+	// DoListAllUsers() returns (*UserListDto, error){}
+// }
+
+// RenameCmd 重命名
+message RenameCmd {
+  string src = 1;
+  string dst = 2;
+}
+
+// MoveCmd move
+message MoveCmd {
+  string src = 1;
+  string dst = 2;
+  bool override = 3;
+}
+
+// CopyCmd move
+message CopyCmd {
+  string src = 1;
+  string dst = 2;
+  bool override = 3;
+}
+
+// SubmitTokenCmd 提交token
+message SubmitTokenCmd {
+  string token = 1;
+  bool override = 2;
+}
+
+// QryStreamURLCmd 查询流URL
+message QryStreamURLCmd {
+  string nodeNo = 1;
+  string token = 2;
+  string endpoint = 3; 
+}
+
+// TNode 元数据内容(filenames)
+message TNode  {
+	string id = 1;
+	string pid = 2;
+	string addr = 3;
+	int32 flag = 4;
+	string name = 5;
+	int64 size = 6;
+	int64 ctime = 7;
+	int64 mtime = 8;
+	string props = 9;
+}
+
+// StreamToken 流操作Token
+message StreamToken  {
+	string token = 1;    
+	string nodeNo = 2;   
+	string fileID = 3;   
+	string filePath = 4; 
+	int64 fileSize = 5; 
+	int64 cTime = 6;    
+	int64 mTime = 7;   
+	string endPoint = 8;
+	int32 type = 9;     
+}
+
+// SrcAndDstBo src 和 dst
+message SrcAndDstBo  {
+	string src = 1;
+	string dst = 2;
+}
+
+// CopyNodeBo 拷贝
+message CopyNodeBo  {
+	string src = 1;       
+	string dst = 2;             
+	bool override = 3; 
+}
+
+// MoveNodeBo 移动
+message MoveNodeBo  {
+	string src = 1;      
+	string dst = 2;      
+	bool override = 3; 
+}
+
+// WriteTokenBo 文件上传递交token
+message WriteTokenBo  {
+	string token = 1;   
+	bool override = 2;
+}
+
+// LimitQueryBo 分页查询
+message LimitQueryBo  {
+	string query = 1;  
+	int32 limit = 2;  
+	int32 offset = 3; 
+}
+
+// CreateUserBo 用户表存储的结构
+message CreateUserBo  {
+	int32 userType = 1; 
+	string userID = 2;   
+	string userName = 3; 
+	string userPWD = 4; 
+}
+
+// PwdUpdateBo 更改用户密码
+message PwdUpdateBo  {
+	string user = 1; 
+	string pwd = 2; 
+}
+
+// UserListDto 用户信息列表
+message UserListDto  {
+	repeated UserInfo datas = 1; 
+	int64 total = 2;
+}
+
+// UserInfo 用户表存储的结构
+message UserInfo  {
+	int32 userType = 1; 
+	string userID = 2;   
+	string userName = 3;
+	int64 ctTime = 4; 
+}
+
+// DirNameListDto 文件夹目录列表
+message DirNameListDto  {
+	repeated string datas = 1;
+	int64 total = 2;
+}
+
+// DirNodeListDto 文件夹目录列表
+message DirNodeListDto  {
+	repeated TNode datas = 1;
+	int64 total = 2;
+}
