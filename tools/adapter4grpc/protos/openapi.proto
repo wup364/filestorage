@@ -32,7 +32,6 @@ service OpenApi {
 }
 
 // service  IServerMG  {
-	// GetRPCConn() *Conn4RPC
 	// DoCreateUser(user CreateUserBo) returns (bool, error){}
 	// DoUpdatePWD(user, pwd string) returns (bool, error){}
 	// DoDeleteUser(userID string) returns (bool, error){}
