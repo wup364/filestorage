@@ -18,12 +18,21 @@ func NewSvrMngApi(addr string, user User) IServerMG {
 
 // ServerMgSdkImpl 开发api接口
 type ServerMgSdkImpl struct {
-	conn *Conn4RPC
+	conn IConn4RPC
 }
 
-// GetRPCConn GetRPCConn
-func (s *ServerMgSdkImpl) GetRPCConn() *Conn4RPC {
-	return s.conn
+// ConnTest ConnTest
+func (s *ServerMgSdkImpl) ConnTest(user User) error {
+	if client, err := s.conn.GetClient(); nil != err {
+		return err
+	} else {
+		defer client.Close()
+		var reply bool
+		if err = client.Call("AuthApi.DoCheckPwd", user, &reply); nil != err {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *ServerMgSdkImpl) DoCreateUser(user CreateUserBo) (bool, error) {

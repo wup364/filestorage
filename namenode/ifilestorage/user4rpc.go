@@ -41,6 +41,8 @@ type UserManage interface {
 
 // UserAuth4Rpc access接口
 type UserAuth4Rpc interface {
+	// CheckPwd 校验密码是否一致
+	CheckPwd(userID, pwd string) bool
 	// AskAccess 获取access
 	AskAccess(userID, pwd string) (*UserAccess, error)
 	// GetSecretKey 获取 userAccess

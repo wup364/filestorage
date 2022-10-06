@@ -18,8 +18,21 @@ import (
 
 var ErrorAuthentication = errors.New("authentication failed")
 
+// IConn4RPC RPC连接会话
+type IConn4RPC interface {
+	GetAccessKey() (string, error)
+	GetClient() (IRPCClient, error)
+	DoRPC(method string, args interface{}, reply interface{}) error
+}
+
+// IRPCClient RPC发起接口
+type IRPCClient interface {
+	Close() error
+	Call(serviceMethod string, args interface{}, reply interface{}) error
+}
+
 // NewConn4RPC RPC客户端
-func NewConn4RPC(addr string, user User) *Conn4RPC {
+func NewConn4RPC(addr string, user User) IConn4RPC {
 	return &Conn4RPC{
 		addr:    addr,
 		user:    &user,
@@ -91,7 +104,7 @@ func (c *Conn4RPC) DoLogin() error {
 		c.session.SecretKey = ""
 	}
 	{
-		if client, err := c.getClient(); nil != err {
+		if client, err := c.GetClient(); nil != err {
 			return err
 		} else {
 			defer client.Close()
@@ -124,8 +137,8 @@ func (c *Conn4RPC) doRPC(method string, args interface{}, reply interface{}) (er
 	if ak, err = c.GetAccessKey(); nil == err {
 		var sg string
 		if sg, err = c.doSignature(""); nil == err {
-			var client *RPCClient
-			if client, err = c.getClient(); nil == err {
+			var client IRPCClient
+			if client, err = c.GetClient(); nil == err {
 				defer client.Close()
 				err = client.Call(method, RequestBody{RequestBody: args, AccessKey: ak, Signature: sg}, reply)
 			}
@@ -144,8 +157,8 @@ func (c *Conn4RPC) doSignature(playload string) (string, error) {
 	return utils.GetStringSHA256(c.session.AccessKey + "/" + c.session.SecretKey + "/" + playload), nil
 }
 
-// getClient 获取一个空闲的客户端
-func (c *Conn4RPC) getClient() (*RPCClient, error) {
+// GetClient 获取一个空闲的客户端
+func (c *Conn4RPC) GetClient() (IRPCClient, error) {
 	if nil == c.clients {
 		return c.createClient(true)
 	}
