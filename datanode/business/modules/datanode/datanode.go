@@ -50,16 +50,16 @@ func (dn *DataNode) AsModule() ipakku.Opts {
 			// 数据存储归档功能
 			dn.df = NewDataNodeFiles(dn.fd, dn.dhc)
 			// 元数据信息存储功能
-			DNS_DFDS := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#datanode?cache=shared"
+			ds4datanode := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#datanode?cache=shared"
 			dn.dns = NewDataNodeStory("datanodes", ifilestorage.DBSetting{
 				DriverName:     dn.cf.GetConfig("store.datanode.driver").ToString("sqlite3"),
-				DataSourceName: dn.cf.GetConfig("store.datanode.datasource").ToString(DNS_DFDS),
+				DataSourceName: dn.cf.GetConfig("store.datanode.datasource").ToString(ds4datanode),
 			})
 			// 文件Hash记录索引
-			DHS_DFDS := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#datahash?cache=shared"
+			ds4datahash := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#datahash?cache=shared"
 			dn.dhs = NewDataHashStory("datahashs", ifilestorage.DBSetting{
 				DriverName:     dn.cf.GetConfig("store.datahash.driver").ToString("sqlite3"),
-				DataSourceName: dn.cf.GetConfig("store.datahash.datasource").ToString(DHS_DFDS),
+				DataSourceName: dn.cf.GetConfig("store.datahash.datasource").ToString(ds4datahash),
 			})
 			// 远程调用namenode
 			dn.nconn = bizutils.NewConn4RPC(

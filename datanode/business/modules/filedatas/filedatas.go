@@ -13,6 +13,7 @@ package filedatas
 
 import (
 	"datanode/business/modules/filedatas/dirmount"
+	"datanode/business/modules/filedatas/filesecure"
 	"datanode/business/modules/filedatas/fsdrivers"
 	"datanode/business/modules/filedatas/ifiledatas"
 	"datanode/ifilestorage"
@@ -27,8 +28,9 @@ import (
 
 // FileDatas 文件数据管理
 type FileDatas struct {
-	mt ifiledatas.DIRMount
-	c  ipakku.AppConfig `@autowired:"AppConfig"`
+	mt      ifiledatas.DIRMount
+	fsc      ifiledatas.FileSecure
+	c       ipakku.AppConfig `@autowired:"AppConfig"`
 }
 
 // AsModule 作为一个模块
@@ -37,9 +39,6 @@ func (fns *FileDatas) AsModule() ipakku.Opts {
 		Name:        "FileDatas",
 		Version:     1.0,
 		Description: "数据存取模块",
-		OnReady: func(mctx ipakku.Loader) {
-
-		},
 		OnSetup: func() {
 			mount := fns.c.GetConfig(CONFKEY_MOUNT).ToStrMap(make(map[string]interface{}))
 			if len(mount) == 0 {
@@ -49,6 +48,15 @@ func (fns *FileDatas) AsModule() ipakku.Opts {
 			}
 		},
 		OnInit: func() {
+			// 初始化加密
+			encryptionMode := fns.c.GetConfig(CONFKEY_ENCRYPTIONMODE).ToString("")
+			encryptionPwd := fns.c.GetConfig(CONFKEY_ENCRYPTIONPWD).ToString("")
+			if len(encryptionPwd) > 0 && len(encryptionMode) == 0 {
+				encryptionMode = filesecure.ENCRYPTIONMODE_XOR
+			}
+			fns.fsc = filesecure.NewFileSecure(encryptionPwd, encryptionMode)
+			
+			// 挂载目录
 			mount := fns.c.GetConfig(CONFKEY_MOUNT).ToStrMap(make(map[string]interface{}))
 			if len(mount) == 0 {
 				logs.Panicln("Not find mount config, in config key: " + CONFKEY_MOUNT)
@@ -128,7 +136,7 @@ func (fns *FileDatas) DoWrite(relativePath string, ioReader io.Reader) error {
 	if nil != err {
 		return err
 	}
-	return fs.DoWrite(relativePath, ioReader)
+	return fs.DoWrite(relativePath, fns.fsc.EncodeWrapper(ioReader))
 }
 
 // DoRead 读取文件
@@ -137,7 +145,11 @@ func (fns *FileDatas) DoRead(relativePath string, offset int64) (io.ReadCloser, 
 	if nil != err {
 		return nil, err
 	}
-	return fs.DoRead(relativePath, offset)
+	if r, err := fs.DoRead(relativePath, offset); nil != err {
+		return nil, err
+	} else {
+		return fns.fsc.DecodeWrapper(r, offset), nil
+	}
 }
 
 // IsFile 是否是文件, 如果路径不对或者驱动不对则为 false
