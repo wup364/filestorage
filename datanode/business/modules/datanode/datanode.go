@@ -52,13 +52,13 @@ func (dn *DataNode) AsModule() ipakku.Opts {
 			// 元数据信息存储功能
 			ds4datanode := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#datanode?cache=shared"
 			dn.dns = NewDataNodeStory("datanodes", ifilestorage.DBSetting{
-				DriverName:     dn.cf.GetConfig("store.datanode.driver").ToString("sqlite3"),
+				DriverName:     "sqlite3",
 				DataSourceName: dn.cf.GetConfig("store.datanode.datasource").ToString(ds4datanode),
 			})
 			// 文件Hash记录索引
 			ds4datahash := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#datahash?cache=shared"
 			dn.dhs = NewDataHashStory("datahashs", ifilestorage.DBSetting{
-				DriverName:     dn.cf.GetConfig("store.datahash.driver").ToString("sqlite3"),
+				DriverName:     "sqlite3",
 				DataSourceName: dn.cf.GetConfig("store.datahash.datasource").ToString(ds4datahash),
 			})
 			// 远程调用namenode
