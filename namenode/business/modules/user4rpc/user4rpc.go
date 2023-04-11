@@ -22,7 +22,7 @@ import (
 
 // User4RPC 用户管理模块
 type User4RPC struct {
-	us *UserStory
+	us *UserRepo
 	c  ipakku.AppConfig `@autowired:"AppConfig"`
 	ch ipakku.AppCache  `@autowired:"AppCache"`
 }
@@ -34,7 +34,7 @@ func (umg *User4RPC) AsModule() ipakku.Opts {
 		Version:     1.0,
 		Description: "RPC用户鉴权",
 		OnReady: func(mctx ipakku.Loader) {
-			umg.us = &UserStory{}
+			umg.us = &UserRepo{}
 			deftDataSource := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#user?cache=shared"
 			confDataSource := umg.c.GetConfig("store.user4rpc.datasource").ToString(deftDataSource)
 			if confDataSource == deftDataSource {

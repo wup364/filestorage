@@ -9,7 +9,7 @@
 
 // 数据存储节点-文件信息记录
 
-package datanode
+package repository
 
 import (
 	"database/sql"
@@ -19,21 +19,21 @@ import (
 	"time"
 )
 
-// NewDataNodeStory NewDataNodeStory
-func NewDataNodeStory(table string, dbs ifilestorage.DBSetting) *DataNodeStory {
-	dns := &DataNodeStory{table: table}
+// NewDataNodeRepo NewDataNodeRepo
+func NewDataNodeRepo(table string, dbs ifilestorage.DBSetting) *DataNodeRepo {
+	dns := &DataNodeRepo{table: table}
 	dns.Initial(dbs)
 	return dns
 }
 
-// DataNodeStory 元数据信息-数据库
-type DataNodeStory struct {
+// DataNodeRepo 元数据信息-数据库
+type DataNodeRepo struct {
 	table string
 	db    *sql.DB
 }
 
 // Initial 初始化配置
-func (ds *DataNodeStory) Initial(st ifilestorage.DBSetting) (err error) {
+func (ds *DataNodeRepo) Initial(st ifilestorage.DBSetting) (err error) {
 	if nil == ds.db {
 		ds.db, err = sql.Open(st.DriverName, st.DataSourceName)
 		if nil == err {
@@ -51,17 +51,17 @@ func (ds *DataNodeStory) Initial(st ifilestorage.DBSetting) (err error) {
 }
 
 // GetSqlTx 获取事物
-func (ds *DataNodeStory) GetSqlTx() (*sql.Tx, error) {
+func (ds *DataNodeRepo) GetSqlTx() (*sql.Tx, error) {
 	return ds.db.Begin()
 }
 
 // GetSqlTx 获取数据库对象
-func (ds *DataNodeStory) GetDB() *sql.DB {
+func (ds *DataNodeRepo) GetDB() *sql.DB {
 	return ds.db
 }
 
 // UpdateById 更新节点
-func (ds *DataNodeStory) UpdateById(conn *sql.Tx, node ifilestorage.DNode) (err error) {
+func (ds *DataNodeRepo) UpdateById(conn *sql.Tx, node ifilestorage.DNode) (err error) {
 	if len(node.Id) == 0 {
 		return errors.New("id is empty")
 	}
@@ -74,7 +74,7 @@ func (ds *DataNodeStory) UpdateById(conn *sql.Tx, node ifilestorage.DNode) (err 
 }
 
 // DeleteByID 删除节点
-func (ds *DataNodeStory) DeleteByID(conn *sql.Tx, id string) (err error) {
+func (ds *DataNodeRepo) DeleteByID(conn *sql.Tx, id string) (err error) {
 	if len(id) == 0 {
 		return errors.New("id is empty")
 	}
@@ -87,7 +87,7 @@ func (ds *DataNodeStory) DeleteByID(conn *sql.Tx, id string) (err error) {
 }
 
 // DeleteInIDs 删除节点
-func (ds *DataNodeStory) DeleteInIDs(conn *sql.Tx, ids []string) (err error) {
+func (ds *DataNodeRepo) DeleteInIDs(conn *sql.Tx, ids []string) (err error) {
 	if len(ids) == 0 {
 		return errors.New("id is empty")
 	}
@@ -100,7 +100,7 @@ func (ds *DataNodeStory) DeleteInIDs(conn *sql.Tx, ids []string) (err error) {
 }
 
 // InsertNode 新增节点
-func (ds *DataNodeStory) InsertNode(conn *sql.Tx, node ifilestorage.DNode) (err error) {
+func (ds *DataNodeRepo) InsertNode(conn *sql.Tx, node ifilestorage.DNode) (err error) {
 	var stmt *sql.Stmt
 	stmt, err = conn.Prepare("insert into " + ds.table + "(id, size, sha256, pieces) values(?, ?, ?, ?)")
 	if nil == err {
@@ -110,7 +110,7 @@ func (ds *DataNodeStory) InsertNode(conn *sql.Tx, node ifilestorage.DNode) (err 
 }
 
 // ListPiecesInIDs 获取文件pieces信息
-func (ds *DataNodeStory) ListPiecesInIDs(conn *sql.DB, ids []string) (pieces []string, err error) {
+func (ds *DataNodeRepo) ListPiecesInIDs(conn *sql.DB, ids []string) (pieces []string, err error) {
 	if len(ids) == 0 {
 		return pieces, errors.New("id is empty")
 	}
@@ -132,7 +132,7 @@ func (ds *DataNodeStory) ListPiecesInIDs(conn *sql.DB, ids []string) (pieces []s
 }
 
 // GetNode 在数据库中查找节点
-func (ds *DataNodeStory) GetNode(conn *sql.DB, id string) (*ifilestorage.DNode, error) {
+func (ds *DataNodeRepo) GetNode(conn *sql.DB, id string) (*ifilestorage.DNode, error) {
 	if len(id) == 0 {
 		return nil, errors.New("id is empty")
 	}
@@ -153,7 +153,7 @@ func (ds *DataNodeStory) GetNode(conn *sql.DB, id string) (*ifilestorage.DNode, 
 }
 
 // CreateTables 初始化结构
-func (ds *DataNodeStory) CreateTables(conn *sql.Tx) (err error) {
+func (ds *DataNodeRepo) CreateTables(conn *sql.Tx) (err error) {
 	dropSql := "drop table  `" + ds.table + "`"
 	tableSql := "create table if not exists `" + ds.table + "`  (`id` char(36)  not null, `size` bigint not null, `sha256` char(64) null, `pieces` text, primary key (`id`))"
 	IndexSql := []string{

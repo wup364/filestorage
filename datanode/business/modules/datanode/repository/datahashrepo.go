@@ -9,7 +9,7 @@
 
 // 数据存储节点-文件信息记录
 
-package datanode
+package repository
 
 import (
 	"database/sql"
@@ -24,21 +24,21 @@ const (
 	status_hashdata_enable   = 1
 )
 
-// NewDataHashStory NewDataHashStory
-func NewDataHashStory(table string, dbs ifilestorage.DBSetting) *DataHashStory {
-	dns := &DataHashStory{table: table}
+// NewDataHashRepo NewDataHashRepo
+func NewDataHashRepo(table string, dbs ifilestorage.DBSetting) *DataHashRepo {
+	dns := &DataHashRepo{table: table}
 	dns.Initial(dbs)
 	return dns
 }
 
-// DataHashStory hahs记录
-type DataHashStory struct {
+// DataHashRepo hahs记录
+type DataHashRepo struct {
 	table string
 	db    *sql.DB
 }
 
 // Initial 初始化配置
-func (ds *DataHashStory) Initial(st ifilestorage.DBSetting) (err error) {
+func (ds *DataHashRepo) Initial(st ifilestorage.DBSetting) (err error) {
 	if nil == ds.db {
 		ds.db, err = sql.Open(st.DriverName, st.DataSourceName)
 		if nil == err {
@@ -56,17 +56,17 @@ func (ds *DataHashStory) Initial(st ifilestorage.DBSetting) (err error) {
 }
 
 // GetSqlTx 获取事物
-func (ds *DataHashStory) GetSqlTx() (*sql.Tx, error) {
+func (ds *DataHashRepo) GetSqlTx() (*sql.Tx, error) {
 	return ds.db.Begin()
 }
 
 // GetSqlTx 获取数据库对象
-func (ds *DataHashStory) GetDB() *sql.DB {
+func (ds *DataHashRepo) GetDB() *sql.DB {
 	return ds.db
 }
 
 // DisableInIds 设置节点为删除
-func (ds *DataHashStory) DisableInIds(conn *sql.Tx, ids []string) (err error) {
+func (ds *DataHashRepo) DisableInIds(conn *sql.Tx, ids []string) (err error) {
 	if len(ids) == 0 {
 		return errors.New("id is empty")
 	}
@@ -79,7 +79,7 @@ func (ds *DataHashStory) DisableInIds(conn *sql.Tx, ids []string) (err error) {
 }
 
 // DisableInFIds 设置节点为删除
-func (ds *DataHashStory) DisableInFIds(conn *sql.Tx, fids []string) (err error) {
+func (ds *DataHashRepo) DisableInFIds(conn *sql.Tx, fids []string) (err error) {
 	if len(fids) == 0 {
 		return errors.New("fid is empty")
 	}
@@ -92,7 +92,7 @@ func (ds *DataHashStory) DisableInFIds(conn *sql.Tx, fids []string) (err error) 
 }
 
 // DeleteByFID 删除节点
-func (ds *DataHashStory) DeleteByFID(conn *sql.Tx, fid string) (err error) {
+func (ds *DataHashRepo) DeleteByFID(conn *sql.Tx, fid string) (err error) {
 	if len(fid) == 0 {
 		return errors.New("fid is empty")
 	}
@@ -105,7 +105,7 @@ func (ds *DataHashStory) DeleteByFID(conn *sql.Tx, fid string) (err error) {
 }
 
 // DeleteByID 删除节点
-func (ds *DataHashStory) DeleteByID(conn *sql.Tx, id string) (err error) {
+func (ds *DataHashRepo) DeleteByID(conn *sql.Tx, id string) (err error) {
 	if len(id) == 0 {
 		return errors.New("id is empty")
 	}
@@ -118,7 +118,7 @@ func (ds *DataHashStory) DeleteByID(conn *sql.Tx, id string) (err error) {
 }
 
 // DeleteInFIDs 删除节点
-func (ds *DataHashStory) DeleteInFIDs(conn *sql.Tx, fids []string) (err error) {
+func (ds *DataHashRepo) DeleteInFIDs(conn *sql.Tx, fids []string) (err error) {
 	if len(fids) == 0 {
 		return errors.New("fids is empty")
 	}
@@ -131,7 +131,7 @@ func (ds *DataHashStory) DeleteInFIDs(conn *sql.Tx, fids []string) (err error) {
 }
 
 // DeleteInIDs 删除节点
-func (ds *DataHashStory) DeleteInIDs(conn *sql.Tx, ids []string) (err error) {
+func (ds *DataHashRepo) DeleteInIDs(conn *sql.Tx, ids []string) (err error) {
 	if len(ids) == 0 {
 		return errors.New("ids is empty")
 	}
@@ -144,7 +144,7 @@ func (ds *DataHashStory) DeleteInIDs(conn *sql.Tx, ids []string) (err error) {
 }
 
 // DeleteInHashs 删除节点-只能删除已被标记为删除的
-func (ds *DataHashStory) DeleteInHashs(conn *sql.Tx, hashs []string) (err error) {
+func (ds *DataHashRepo) DeleteInHashs(conn *sql.Tx, hashs []string) (err error) {
 	if len(hashs) == 0 {
 		return errors.New("hashs is empty")
 	}
@@ -156,18 +156,18 @@ func (ds *DataHashStory) DeleteInHashs(conn *sql.Tx, hashs []string) (err error)
 	return err
 }
 
-// InsertHash 新增节点
-func (ds *DataHashStory) InsertHash(conn *sql.Tx, node ifilestorage.HNode) (err error) {
+// InsertEnabledHash 新增节点
+func (ds *DataHashRepo) InsertEnabledHash(conn *sql.Tx, node ifilestorage.HNode) (err error) {
 	var stmt *sql.Stmt
 	stmt, err = conn.Prepare("insert into " + ds.table + "(id, status, fid, sha256) values(?, ?, ?, ?)")
 	if nil == err {
-		_, err = stmt.Exec(node.Id, node.Status, node.FId, node.Hash)
+		_, err = stmt.Exec(node.Id, status_hashdata_enable, node.FId, node.Hash)
 	}
 	return err
 }
 
 // ListDisabled 获取文件pieces信息
-func (ds *DataHashStory) ListDisabled(conn *sql.DB) (nodes []ifilestorage.HNode, err error) {
+func (ds *DataHashRepo) ListDisabled(conn *sql.DB) (nodes []ifilestorage.HNode, err error) {
 	sqlstr := "select id, status, fid, sha256 from " + ds.table + " where status=?"
 	var rows *sql.Rows
 	if rows, err = conn.Query(sqlstr, status_hashdata_disabled); nil == err {
@@ -186,7 +186,7 @@ func (ds *DataHashStory) ListDisabled(conn *sql.DB) (nodes []ifilestorage.HNode,
 }
 
 // QueryRepeatedHashAndDisabledIds 获取hash重复(disabled的和非disabled的数据), 并且已标记为删除的数据
-func (ds *DataHashStory) QueryRepeatedHashAndDisabledIds(conn *sql.DB) (ids []string, hashs []string, err error) {
+func (ds *DataHashRepo) QueryRepeatedHashAndDisabledIds(conn *sql.DB) (ids []string, hashs []string, err error) {
 	sqlstr := "select id, sha256 from ("
 	sqlstr += "select tdel.id, tdel.sha256, t.id as jid from (select id, sha256 from " + ds.table + " where status = 0) as tdel "
 	sqlstr += "left join (select id, sha256 from " + ds.table + " where sha256 in"
@@ -215,7 +215,7 @@ func (ds *DataHashStory) QueryRepeatedHashAndDisabledIds(conn *sql.DB) (ids []st
 }
 
 // GetHash 在数据库中查找节点
-func (ds *DataHashStory) GetHash(conn *sql.DB, id string) (*ifilestorage.HNode, error) {
+func (ds *DataHashRepo) GetHash(conn *sql.DB, id string) (*ifilestorage.HNode, error) {
 	if len(id) == 0 {
 		return nil, errors.New("id is empty")
 	}
@@ -234,7 +234,7 @@ func (ds *DataHashStory) GetHash(conn *sql.DB, id string) (*ifilestorage.HNode, 
 }
 
 // CreateTables 初始化结构
-func (ds *DataHashStory) CreateTables(conn *sql.Tx) (err error) {
+func (ds *DataHashRepo) CreateTables(conn *sql.Tx) (err error) {
 	dropSql := "drop table  `" + ds.table + "`"
 	tableSql := "create table if not exists `" + ds.table + "`  (`id` char(36)  not null, `status` int not null, `fid` char(36)  not null, `sha256` char(64) default '', primary key (`id`))"
 	IndexSql := []string{

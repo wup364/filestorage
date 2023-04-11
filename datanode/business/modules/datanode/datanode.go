@@ -13,7 +13,10 @@ package datanode
 
 import (
 	"datanode/business/bizutils"
-	"datanode/business/modules/datanode/namenode"
+	"datanode/business/modules/datanode/cleaner"
+	"datanode/business/modules/datanode/fio"
+	"datanode/business/modules/datanode/remote"
+	"datanode/business/modules/datanode/repository"
 	"datanode/ifilestorage"
 	"time"
 
@@ -25,7 +28,7 @@ import (
 type DataNode struct {
 	DataNodeImpl
 	nodeno string
-	dhc    *HashDataCtrl
+	dhc    *fio.HashDataCtrl
 	nconn  *bizutils.Conn4RPC
 	nrpc   ifilestorage.RPC4NameNode
 	ch     ipakku.AppCache        `@autowired:"AppCache"`
@@ -40,24 +43,24 @@ func (dn *DataNode) AsModule() ipakku.Opts {
 		Version:     1.0,
 		Description: "数据存储节点",
 		OnReady: func(mctx ipakku.Loader) {
-			if err := dn.ch.RegLib(CacheLib_StreamToken, CacheLib_TokenExpMilliSecond/1000); nil != err {
+			if err := dn.ch.RegLib(fio.CacheLib_StreamToken, fio.CacheLib_TokenExpMilliSecond/1000); nil != err {
 				logs.Panicln(err)
 			}
 			// hash文件写入、读取、删除控制
-			dn.dhc = NewHashDataCtrl()
+			dn.dhc = fio.NewHashDataCtrl()
 			// 节点编号
 			dn.nodeno = mctx.GetParam("nodeno").ToString("")
 			// 数据存储归档功能
-			dn.df = NewDataNodeFiles(dn.fd, dn.dhc)
+			dn.df = fio.NewDataNodeFiles(dn.fd, dn.dhc)
 			// 元数据信息存储功能
 			ds4datanode := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#datanode?cache=shared"
-			dn.dns = NewDataNodeStory("datanodes", ifilestorage.DBSetting{
+			dn.dns = repository.NewDataNodeRepo("datanodes", ifilestorage.DBSetting{
 				DriverName:     "sqlite3",
 				DataSourceName: dn.cf.GetConfig("store.datanode.datasource").ToString(ds4datanode),
 			})
 			// 文件Hash记录索引
 			ds4datahash := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#datahash?cache=shared"
-			dn.dhs = NewDataHashStory("datahashs", ifilestorage.DBSetting{
+			dn.dhs = repository.NewDataHashRepo("datahashs", ifilestorage.DBSetting{
 				DriverName:     "sqlite3",
 				DataSourceName: dn.cf.GetConfig("store.datahash.datasource").ToString(ds4datahash),
 			})
@@ -78,9 +81,9 @@ func (dn *DataNode) AsModule() ipakku.Opts {
 			if err := dn.nconn.DoLogin(); nil != err {
 				logs.Panicln(err)
 			}
-			dn.nrpc = namenode.NewRPC4NameNode(dn.nconn)
+			dn.nrpc = remote.NewRPC4NameNode(dn.nconn)
 			// 传输Token功能
-			dn.tm = NewTokenManage(dn.nrpc, dn.ch)
+			dn.tm = fio.NewTokenManage(dn.nrpc, dn.ch)
 		},
 		OnSetup: func() {
 			if conn, err := dn.dns.GetSqlTx(); nil == err {
@@ -108,8 +111,19 @@ func (dn *DataNode) AsModule() ipakku.Opts {
 		},
 		OnInit: func() {
 			go dn.checkConn()
-			go dn.startHashDataCleaner()
-			go dn.df.startUploadTempCleaner()
+
+			// 文件hash块清理程序
+			go cleaner.NewHashDataCleaner(
+				dn.nodeno,
+				dn.dhc,
+				dn.dns,
+				dn.dhs,
+				dn.fd,
+				dn.nrpc,
+				dn.cf.GetConfig("clearsetting.deletefile").ToBool(false)).StartCleaner()
+				
+			// 上传缓存清理程序
+			go cleaner.NewUploadTempCleaner(dn.fd).StartCleaner()
 		},
 	}
 }
@@ -133,19 +147,4 @@ func (dn *DataNode) checkConn() {
 		}
 		time.Sleep(time.Minute)
 	}
-}
-
-// startHashDataCleaner 删除冗余的hash文件和数据
-func (dn *DataNode) startHashDataCleaner() {
-	dcl := &HashDataClear{
-		nodeno:  dn.nodeno,
-		dhc:     dn.dhc,
-		dns:     dn.dns,
-		dhs:     dn.dhs,
-		fds:     dn.fd,
-		nrpc:    dn.nrpc,
-		delFile: dn.cf.GetConfig("clearsetting.deletefile").ToBool(false),
-	}
-	// Tset
-	dcl.StartCleaner()
 }

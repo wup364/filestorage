@@ -22,14 +22,14 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// NameStory 树-数据库中
-type NameStory struct {
+// NameRepo 树-数据库中
+type NameRepo struct {
 	table string
 	db    *sql.DB
 }
 
 // Initial 初始化配置
-func (nm *NameStory) Initial(table string, st ifilestorage.DBSetting) (err error) {
+func (nm *NameRepo) Initial(table string, st ifilestorage.DBSetting) (err error) {
 	if nil == nm.db {
 		nm.table = table
 		nm.db, err = sql.Open(st.DriverName, st.DataSourceName)
@@ -48,17 +48,17 @@ func (nm *NameStory) Initial(table string, st ifilestorage.DBSetting) (err error
 }
 
 // GetSqlTx 获取事物
-func (nm *NameStory) GetSqlTx() (*sql.Tx, error) {
+func (nm *NameRepo) GetSqlTx() (*sql.Tx, error) {
 	return nm.db.Begin()
 }
 
 // GetSqlTx 获取数据库对象
-func (nm *NameStory) GetDB() *sql.DB {
+func (nm *NameRepo) GetDB() *sql.DB {
 	return nm.db
 }
 
 // UpdateById 更新节点
-func (nm *NameStory) UpdateById(conn *sql.Tx, id string, node ifilestorage.TNode4Update) (err error) {
+func (nm *NameRepo) UpdateById(conn *sql.Tx, id string, node ifilestorage.TNode4Update) (err error) {
 	if len(id) == 0 {
 		return errors.New("id is empty")
 	}
@@ -71,7 +71,7 @@ func (nm *NameStory) UpdateById(conn *sql.Tx, id string, node ifilestorage.TNode
 }
 
 // MoveNode 更新节点-重新设置pid
-func (nm *NameStory) MoveNode(conn *sql.Tx, srcid, name, dstid string) (err error) {
+func (nm *NameRepo) MoveNode(conn *sql.Tx, srcid, name, dstid string) (err error) {
 	if len(srcid) == 0 {
 		return errors.New("src id is empty")
 	}
@@ -86,7 +86,7 @@ func (nm *NameStory) MoveNode(conn *sql.Tx, srcid, name, dstid string) (err erro
 }
 
 // DeleteByID 删除节点
-func (nm *NameStory) DeleteByID(conn *sql.Tx, id string) (err error) {
+func (nm *NameRepo) DeleteByID(conn *sql.Tx, id string) (err error) {
 	if len(id) == 0 {
 		return errors.New("id is empty")
 	}
@@ -98,7 +98,7 @@ func (nm *NameStory) DeleteByID(conn *sql.Tx, id string) (err error) {
 }
 
 // CountReferencedAddr 统计引用的文件地址
-func (nm *NameStory) CountReferencedAddr(conn *sql.DB, addr string) (count int64, err error) {
+func (nm *NameRepo) CountReferencedAddr(conn *sql.DB, addr string) (count int64, err error) {
 	if len(addr) == 0 {
 		return count, errors.New("addr is empty")
 	}
@@ -117,7 +117,7 @@ func (nm *NameStory) CountReferencedAddr(conn *sql.DB, addr string) (count int64
 }
 
 // InsertNode 新增节点
-func (nm *NameStory) InsertNode(conn *sql.Tx, node ifilestorage.TNode4New) (err error) {
+func (nm *NameRepo) InsertNode(conn *sql.Tx, node ifilestorage.TNode4New) (err error) {
 	var stmt *sql.Stmt
 	stmt, err = conn.Prepare("insert into " + nm.table + "(id, pid, flag, name, size, ctime, mtime, addr, props) values(?, ?, ?, ?, ?, ?, ?, ?, ?)")
 	if nil == err {
@@ -128,7 +128,7 @@ func (nm *NameStory) InsertNode(conn *sql.Tx, node ifilestorage.TNode4New) (err 
 }
 
 // GetRoot 在数据库中查找根节点, pid=root节点的父节点, 可以为空
-func (nm *NameStory) GetRoot(conn *sql.DB, pid string) (*ifilestorage.TNode, error) {
+func (nm *NameRepo) GetRoot(conn *sql.DB, pid string) (*ifilestorage.TNode, error) {
 	sql := "select id, pid, flag, name, size, ctime, mtime, props from " + nm.table + " where pid=?"
 	rows, err := conn.Query(sql, pid)
 	if nil != err {
@@ -146,7 +146,7 @@ func (nm *NameStory) GetRoot(conn *sql.DB, pid string) (*ifilestorage.TNode, err
 }
 
 // GetNode 在数据库中查找节点
-func (nm *NameStory) GetNode(conn *sql.DB, id string) (*ifilestorage.TNode, error) {
+func (nm *NameRepo) GetNode(conn *sql.DB, id string) (*ifilestorage.TNode, error) {
 	if len(id) == 0 {
 		return nil, errors.New("id is empty")
 	}
@@ -166,7 +166,7 @@ func (nm *NameStory) GetNode(conn *sql.DB, id string) (*ifilestorage.TNode, erro
 }
 
 // GetNode 在数据库中查找节点
-func (nm *NameStory) GetNodeInTx(conn *sql.Tx, id string) (*ifilestorage.TNode, error) {
+func (nm *NameRepo) GetNodeInTx(conn *sql.Tx, id string) (*ifilestorage.TNode, error) {
 	if len(id) == 0 {
 		return nil, errors.New("id is empty")
 	}
@@ -186,7 +186,7 @@ func (nm *NameStory) GetNodeInTx(conn *sql.Tx, id string) (*ifilestorage.TNode, 
 }
 
 // GetNodeChilds 在数据库中查找子节点 - offset用到在加吧
-func (nm *NameStory) GetNodeChilds(conn *sql.DB, pid string, limit int) ([]*ifilestorage.TNode, error) {
+func (nm *NameRepo) GetNodeChilds(conn *sql.DB, pid string, limit int) ([]*ifilestorage.TNode, error) {
 	if len(pid) == 0 {
 		return nil, errors.New("pid is empty")
 	}
@@ -208,7 +208,7 @@ func (nm *NameStory) GetNodeChilds(conn *sql.DB, pid string, limit int) ([]*ifil
 }
 
 // CountInTime 统计一段时间内的数量
-func (nm *NameStory) CountInTime(conn *sql.DB, timeStart, timeEnd int64) (int64, error) {
+func (nm *NameRepo) CountInTime(conn *sql.DB, timeStart, timeEnd int64) (int64, error) {
 	sql := "select count(id) from " + nm.table + " where ctime >? and ctime <?"
 	rows, err := conn.Query(sql, timeStart, timeEnd)
 	if nil != err {
@@ -226,7 +226,7 @@ func (nm *NameStory) CountInTime(conn *sql.DB, timeStart, timeEnd int64) (int64,
 }
 
 // GetNodeAllChilds 在数据库中查找子节点
-func (nm *NameStory) GetNodeAllChilds(conn *sql.DB, pid string) ([]*ifilestorage.TNode, error) {
+func (nm *NameRepo) GetNodeAllChilds(conn *sql.DB, pid string) ([]*ifilestorage.TNode, error) {
 	if len(pid) == 0 {
 		return nil, errors.New("pid is empty")
 	}
@@ -251,7 +251,7 @@ func (nm *NameStory) GetNodeAllChilds(conn *sql.DB, pid string) ([]*ifilestorage
 }
 
 // WalkNodeAllChilds 一次性查出所有查出某个节点所有子节点
-func (nm *NameStory) WalkNodeAllChilds(conn *sql.DB, id string, walk func(node *ifilestorage.TNode) error) error {
+func (nm *NameRepo) WalkNodeAllChilds(conn *sql.DB, id string, walk func(node *ifilestorage.TNode) error) error {
 	if len(id) == 0 {
 		return errors.New("id is empty")
 	}
@@ -277,7 +277,7 @@ func (nm *NameStory) WalkNodeAllChilds(conn *sql.DB, id string, walk func(node *
 }
 
 // CountNodeChild 统计一级子节点数量
-func (nm *NameStory) CountNodeChild(conn *sql.DB, id string) (int64, error) {
+func (nm *NameRepo) CountNodeChild(conn *sql.DB, id string) (int64, error) {
 	if len(id) == 0 {
 		return -1, errors.New("id is empty")
 	}
@@ -296,7 +296,7 @@ func (nm *NameStory) CountNodeChild(conn *sql.DB, id string) (int64, error) {
 }
 
 // CountNodeChild 统计一级子节点数量
-func (nm *NameStory) CountNodeChildTx(conn *sql.Tx, id string) (int64, error) {
+func (nm *NameRepo) CountNodeChildTx(conn *sql.Tx, id string) (int64, error) {
 	if len(id) == 0 {
 		return -1, errors.New("id is empty")
 	}
@@ -315,7 +315,7 @@ func (nm *NameStory) CountNodeChildTx(conn *sql.Tx, id string) (int64, error) {
 }
 
 // LoopNodeChilds 递归查找数据库中查找子节点
-func (nm *NameStory) LoopNodeChilds(conn *sql.DB, id string, walk func(node *ifilestorage.TNode) error, mode TreeLoopMode) error {
+func (nm *NameRepo) LoopNodeChilds(conn *sql.DB, id string, walk func(node *ifilestorage.TNode) error, mode TreeLoopMode) error {
 	if len(id) == 0 {
 		return errors.New("id is empty")
 	}
@@ -381,7 +381,7 @@ func (nm *NameStory) LoopNodeChilds(conn *sql.DB, id string, walk func(node *ifi
 }
 
 // CreateTables 初始化结构
-func (nm *NameStory) CreateTables(conn *sql.Tx) (err error) {
+func (nm *NameRepo) CreateTables(conn *sql.Tx) (err error) {
 	dropSql := "drop table  `" + nm.table + "`"
 	tableSql := "create table if not exists `" + nm.table + "`  (`id` char(36)  not null,`pid` char(36)  not null,`flag` int not null,`name` varchar(1024)  not null,`size` bigint not null,`ctime` bigint not null,`mtime` bigint not null,`addr` char(64) default '',`props` text default '', primary key (`id`))"
 	IndexSql := []string{

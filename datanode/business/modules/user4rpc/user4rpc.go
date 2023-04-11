@@ -12,6 +12,8 @@
 package user4rpc
 
 import (
+	"datanode/business/modules/user4rpc/constant"
+	"datanode/business/modules/user4rpc/repository"
 	"datanode/ifilestorage"
 
 	"github.com/wup364/pakku/ipakku"
@@ -22,7 +24,7 @@ import (
 
 // User4RPC 用户管理模块
 type User4RPC struct {
-	us *UserStory
+	us *repository.UserRepo
 	c  ipakku.AppConfig `@autowired:"AppConfig"`
 	ch ipakku.AppCache  `@autowired:"AppCache"`
 }
@@ -34,7 +36,7 @@ func (umg *User4RPC) AsModule() ipakku.Opts {
 		Version:     1.0,
 		Description: "RPC用户鉴权",
 		OnReady: func(mctx ipakku.Loader) {
-			umg.us = &UserStory{}
+			umg.us = &repository.UserRepo{}
 			deftDataSource := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#user?cache=shared"
 			confDataSource := umg.c.GetConfig("store.user4rpc.datasource").ToString(deftDataSource)
 			if confDataSource == deftDataSource {
@@ -47,7 +49,7 @@ func (umg *User4RPC) AsModule() ipakku.Opts {
 				logs.Panicln(err)
 			}
 			// 注册 accesstoken 缓存库, x分钟过期
-			if err := umg.ch.RegLib(Clib_Access, 60*60*24); nil != err {
+			if err := umg.ch.RegLib(constant.Clib_Access, 60*60*24); nil != err {
 				logs.Panicln(err)
 			}
 		},
@@ -88,7 +90,7 @@ func (umg *User4RPC) Clear() error {
 // AddUser 添加用户
 func (umg *User4RPC) AddUser(user *ifilestorage.CreateUserBo) error {
 	if u, _ := umg.QueryUser(user.UserID); nil != u {
-		return ErrCreateFailed101
+		return constant.ErrCreateFailed101
 	}
 	return umg.us.AddUser(user)
 }
@@ -98,7 +100,7 @@ func (umg *User4RPC) UpdatePWD(userID, pwd string) error {
 	if userOld, err := umg.QueryUser(userID); nil != err {
 		return err
 	} else if nil == userOld {
-		return ErrorUserNotExist
+		return constant.ErrorUserNotExist
 	}
 	return umg.us.UpdatePWD(&ifilestorage.PwdUpdateBo{
 		UserID:  userID,
@@ -109,14 +111,14 @@ func (umg *User4RPC) UpdatePWD(userID, pwd string) error {
 // UpdateUserName 修改用户昵称
 func (umg *User4RPC) UpdateUserName(userID, userName string) error {
 	if len(userName) == 0 {
-		return ErrorUserNameIsNil
+		return constant.ErrorUserNameIsNil
 	}
 	userOld, err := umg.QueryUser(userID)
 	if nil != err {
 		return err
 	}
 	if nil == userOld {
-		return ErrorUserNotExist
+		return constant.ErrorUserNotExist
 	}
 	userOld.UserName = userName
 	return umg.us.UpdateUser(userOld)
@@ -135,7 +137,7 @@ func (umg *User4RPC) CheckPwd(userID, pwd string) bool {
 // AskAccess 获取access
 func (umg *User4RPC) AskAccess(userID, pwd string) (*ifilestorage.UserAccess, error) {
 	if !umg.CheckPwd(userID, pwd) {
-		return nil, ErrorAuthentication
+		return nil, constant.ErrorAuthentication
 	}
 	if user, err := umg.QueryUser(userID); nil != err {
 		return nil, err
@@ -147,7 +149,7 @@ func (umg *User4RPC) AskAccess(userID, pwd string) (*ifilestorage.UserAccess, er
 			AccessKey: strutil.GetUUID(),
 			SecretKey: strutil.GetUUID(),
 		}
-		if err := umg.ch.Set(Clib_Access, access.AccessKey, access); nil != err {
+		if err := umg.ch.Set(constant.Clib_Access, access.AccessKey, access); nil != err {
 			return nil, err
 		}
 		return access, nil
@@ -157,24 +159,24 @@ func (umg *User4RPC) AskAccess(userID, pwd string) (*ifilestorage.UserAccess, er
 // GetUserAccess 获取 useraccess
 func (umg *User4RPC) GetUserAccess(accessKey string) (*ifilestorage.UserAccess, error) {
 	var val ifilestorage.UserAccess
-	if err := umg.ch.Get(Clib_Access, accessKey, &val); nil == err {
+	if err := umg.ch.Get(constant.Clib_Access, accessKey, &val); nil == err {
 		return &val, nil
 	} else if err != ipakku.ErrNoCacheHit {
 		return nil, err
 	}
-	return nil, ErrorAuthentication
+	return nil, constant.ErrorAuthentication
 }
 
 // RefreshAccessKey 刷新 access
 func (umg *User4RPC) RefreshAccessKey(accessKey string) error {
 	var val ifilestorage.UserAccess
-	if err := umg.ch.Get(Clib_Access, accessKey, &val); nil == err {
-		if err := umg.ch.Set(Clib_Access, val.AccessKey, &val); nil != err {
+	if err := umg.ch.Get(constant.Clib_Access, accessKey, &val); nil == err {
+		if err := umg.ch.Set(constant.Clib_Access, val.AccessKey, &val); nil != err {
 			return err
 		}
 		return nil
 	}
-	return ErrorAuthentication
+	return constant.ErrorAuthentication
 }
 
 // mkSqliteDIR 创建sqlite文件存放目录

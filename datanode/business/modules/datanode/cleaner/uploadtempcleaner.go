@@ -7,50 +7,56 @@
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 // IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-// 数据存储节点-文件归档
-package datanode
+// 上传缓存清理程序
+
+package cleaner
 
 import (
-	"datanode/business/bizutils"
 	"datanode/business/modules/datanode/fio"
-	"errors"
-	"fmt"
-	"testing"
+	"datanode/ifilestorage"
 	"time"
 
-	"github.com/wup364/pakku/utils/utypes"
+	"github.com/wup364/pakku/utils/logs"
 )
 
-func TestGetArchivedPath4Hash(t *testing.T) {
-	// e/0d/afb6109ade/198327e54c/04b9e92ba9/25f29292f3/16210f4a98/e0dafb6109ade198327e54c04b9e92ba925f29292f316210f4a988c0851ea9b8
-	fmt.Println(fio.GetArchivedPath4Hash("e0dafb6109ade198327e54c04b9e92ba925f29292f316210f4a988c0851ea9b8"))
+// NewUploadTempCleaner 上传缓存清理程序
+func NewUploadTempCleaner(fds ifilestorage.FileDatas) *UploadTempCleaner {
+	return &UploadTempCleaner{fds: fds}
 }
-func TestMapLoop(t *testing.T) {
-	tk := (&bizutils.TokenManager{}).Init()
-	timeStart := time.Now()
-	for i := 0; i < 10000; i++ {
-		tb := utypes.NewSafeMap()
-		for j := 0; j < 100; j++ {
-			tb.Put(i, j)
-		}
-		tk.AskToken(tb, 3000)
+
+// UploadTempCleaner 上传缓存清理程序
+type UploadTempCleaner struct {
+	fds     ifilestorage.FileDatas
+	started bool
+}
+
+// StartCleaner 清理删除数据开始
+func (cls *UploadTempCleaner) StartCleaner() {
+	if cls.started {
+		return
 	}
-	fmt.Println((time.Now().Nanosecond() - timeStart.Nanosecond()) / int(time.Microsecond))
-	timeStart = time.Now()
-	keys := tk.ListTokens()
-	for i := 0; i < len(keys); i++ {
-		if val, ok := tk.GetTokenBody(keys[i]); ok {
-			err := (val.(*utypes.SafeMap)).DoRange(func(key, val interface{}) error {
-				if key.(int)%4 == 0 {
-					return errors.New("break")
+	cls.started = true
+	cls.startUploadTempCleaner()
+}
+
+// startUploadTempCleaner 启动'temp/upload文件'维护线程
+func (cls *UploadTempCleaner) startUploadTempCleaner() {
+	maxTime := int64(1 * 24 * 60 * 60 * 1000)
+	baseDIR := fio.GetTempDIR4Upload("")
+	logs.Infof("startUploadTempCleaner path=%s, exp=%d\r\n", baseDIR, maxTime)
+	for {
+		if dirs := cls.fds.GetDirList(baseDIR, -1, -1); len(dirs) > 0 {
+			nowTime := time.Now().UnixMilli()
+			for j := 0; j < len(dirs); j++ {
+				if temp := baseDIR + "/" + dirs[j]; cls.fds.IsExist(temp) {
+					if fnode := cls.fds.GetNode(temp); nil != fnode {
+						if nowTime-fnode.Mtime > maxTime {
+							cls.fds.DoDelete(temp)
+						}
+					}
 				}
-				return nil
-			})
-			if nil != err && err.Error() == "break" {
-				// fmt.Println(i, val)
-				continue
 			}
 		}
+		time.Sleep(time.Hour)
 	}
-	fmt.Println((time.Now().Nanosecond() - timeStart.Nanosecond()) / int(time.Microsecond))
 }

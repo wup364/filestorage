@@ -9,7 +9,7 @@
 
 // 名称节点客户端
 
-package namenode
+package remote
 
 import (
 	"datanode/business/bizutils"

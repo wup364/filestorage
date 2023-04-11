@@ -9,10 +9,11 @@
 
 // 用db存放数据
 
-package user4rpc
+package repository
 
 import (
 	"database/sql"
+	"datanode/business/modules/user4rpc/constant"
 	"datanode/ifilestorage"
 	"time"
 
@@ -22,13 +23,13 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// UserStory 存储
-type UserStory struct {
+// UserRepo 用户信息
+type UserRepo struct {
 	db *sql.DB
 }
 
 // Initial 初始化配置
-func (us *UserStory) Initial(st ifilestorage.DBSetting) (err error) {
+func (us *UserRepo) Initial(st ifilestorage.DBSetting) (err error) {
 	if nil == us.db {
 		us.db, err = sql.Open(st.DriverName, st.DataSourceName)
 		if nil == err {
@@ -46,7 +47,7 @@ func (us *UserStory) Initial(st ifilestorage.DBSetting) (err error) {
 }
 
 // Install 初始化 users 表
-func (us *UserStory) Install() (err error) {
+func (us *UserRepo) Install() (err error) {
 	var tx *sql.Tx
 	if tx, err = us.db.Begin(); err == nil {
 		if _, err = tx.Exec(
@@ -67,7 +68,7 @@ func (us *UserStory) Install() (err error) {
 }
 
 // ListAllUsers 列出所有用户数据, 无分页
-func (us *UserStory) ListAllUsers() ([]ifilestorage.UserInfo, error) {
+func (us *UserRepo) ListAllUsers() ([]ifilestorage.UserInfo, error) {
 	rows, err := us.db.Query("SELECT userid,username,usertype,cttime FROM users")
 	if err != nil {
 		return nil, err
@@ -86,7 +87,7 @@ func (us *UserStory) ListAllUsers() ([]ifilestorage.UserInfo, error) {
 }
 
 // QueryUser 根据用户ID查询详细信息
-func (us *UserStory) QueryUser(userID string) (*ifilestorage.UserInfo, error) {
+func (us *UserRepo) QueryUser(userID string) (*ifilestorage.UserInfo, error) {
 	rows, err := us.db.Query("SELECT userid,username,usertype,cttime FROM users where userid='" + userID + "'")
 	if err != nil {
 		return nil, err
@@ -104,12 +105,12 @@ func (us *UserStory) QueryUser(userID string) (*ifilestorage.UserInfo, error) {
 }
 
 // AddUser 添加用户
-func (us *UserStory) AddUser(user *ifilestorage.CreateUserBo) (err error) {
+func (us *UserRepo) AddUser(user *ifilestorage.CreateUserBo) (err error) {
 	if len(user.UserID) == 0 {
-		return ErrorUserIDIsNil
+		return constant.ErrorUserIDIsNil
 	}
 	if len(user.UserName) == 0 {
-		return ErrorUserNameIsNil
+		return constant.ErrorUserNameIsNil
 	}
 	// 开启事务
 	var ts *sql.Tx
@@ -131,9 +132,9 @@ func (us *UserStory) AddUser(user *ifilestorage.CreateUserBo) (err error) {
 }
 
 // UpdateUser 修改用户
-func (us *UserStory) UpdateUser(user *ifilestorage.UserInfo) (err error) {
+func (us *UserRepo) UpdateUser(user *ifilestorage.UserInfo) (err error) {
 	if len(user.UserID) == 0 {
-		return ErrorUserIDIsNil
+		return constant.ErrorUserIDIsNil
 	}
 	// 开启事务
 	var ts *sql.Tx
@@ -155,9 +156,9 @@ func (us *UserStory) UpdateUser(user *ifilestorage.UserInfo) (err error) {
 }
 
 // DelUser 根据userId删除用户
-func (us *UserStory) DelUser(userID string) (err error) {
+func (us *UserRepo) DelUser(userID string) (err error) {
 	if len(userID) == 0 {
-		return ErrorUserIDIsNil
+		return constant.ErrorUserIDIsNil
 	}
 	// 开启事务
 	var ts *sql.Tx
@@ -179,7 +180,7 @@ func (us *UserStory) DelUser(userID string) (err error) {
 }
 
 // CheckPwd 校验密码是否一致
-func (us *UserStory) CheckPwd(userID, pwd string) bool {
+func (us *UserRepo) CheckPwd(userID, pwd string) bool {
 	if len(userID) > 0 {
 		if rows, err := us.db.Query("SELECT userid FROM users where userid='" + userID + "' and userpwd='" + strutil.GetMD5(pwd) + "'"); nil == err {
 			defer rows.Close()
@@ -194,9 +195,9 @@ func (us *UserStory) CheckPwd(userID, pwd string) bool {
 }
 
 // UpdateUser 修改用户密码
-func (us *UserStory) UpdatePWD(user *ifilestorage.PwdUpdateBo) (err error) {
+func (us *UserRepo) UpdatePWD(user *ifilestorage.PwdUpdateBo) (err error) {
 	if len(user.UserID) == 0 {
-		return ErrorUserIDIsNil
+		return constant.ErrorUserIDIsNil
 	}
 	// 开启事务
 	var ts *sql.Tx
