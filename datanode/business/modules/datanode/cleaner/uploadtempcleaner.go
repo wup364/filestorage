@@ -20,7 +20,7 @@ import (
 )
 
 // NewUploadTempCleaner 上传缓存清理程序
-func NewUploadTempCleaner(fds ifilestorage.FileDatas) *UploadTempCleaner {
+func NewUploadTempCleaner(fds ifilestorage.FileDatas) Cleaner {
 	return &UploadTempCleaner{fds: fds}
 }
 

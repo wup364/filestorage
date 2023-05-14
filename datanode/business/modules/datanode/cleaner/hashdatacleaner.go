@@ -32,7 +32,7 @@ func NewHashDataCleaner(nodeno string,
 	dhs *repository.DataHashRepo,
 	fds ifilestorage.FileDatas,
 	nrpc ifilestorage.RPC4NameNode,
-	delFile bool) *HashDataClear {
+	delFile bool) Cleaner {
 	return &HashDataClear{
 		nodeno:  nodeno,
 		dhc:     dhc,
