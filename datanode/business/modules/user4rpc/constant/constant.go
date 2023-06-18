@@ -11,6 +11,8 @@ package constant
 
 import (
 	"errors"
+
+	"github.com/wup364/pakku/utils/utypes"
 )
 
 const (
@@ -34,3 +36,9 @@ var ErrorAuthentication = errors.New("authentication failed")
 
 // ErrCreateFailed101 创建失败, 失败原因: 账户已存在
 var ErrCreateFailed101 = errors.New("account already exists")
+
+// User4RPCConfig 配置信息
+type User4RPCConfig struct {
+	Datasource utypes.Object `@value:"store.user4rpc.datasource"`
+	Driver     string        `@value:"store.user4rpc.driver:sqlite3"`
+}

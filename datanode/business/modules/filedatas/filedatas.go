@@ -28,9 +28,9 @@ import (
 
 // FileDatas 文件数据管理
 type FileDatas struct {
-	mt      ifiledatas.DIRMount
-	fsc      ifiledatas.FileSecure
-	c       ipakku.AppConfig `@autowired:"AppConfig"`
+	dirmt   ifiledatas.DIRMount
+	fsecure ifiledatas.FileSecure
+	config  ipakku.AppConfig `@autowired:"AppConfig"`
 }
 
 // AsModule 作为一个模块
@@ -40,30 +40,30 @@ func (fns *FileDatas) AsModule() ipakku.Opts {
 		Version:     1.0,
 		Description: "数据存取模块",
 		OnSetup: func() {
-			mount := fns.c.GetConfig(CONFKEY_MOUNT).ToStrMap(make(map[string]interface{}))
+			mount := fns.config.GetConfig(CONFKEY_MOUNT).ToStrMap(make(map[string]interface{}))
 			if len(mount) == 0 {
-				fns.c.SetConfig(CONFKEY_MOUNT+"./."+CONFKEY_MOUNTTYPE, "LOCAL")
-				fns.c.SetConfig(CONFKEY_MOUNT+"./."+CONFKEY_MOUNTADDR, "./datas")
+				fns.config.SetConfig(CONFKEY_MOUNT+"./."+CONFKEY_MOUNTTYPE, "LOCAL")
+				fns.config.SetConfig(CONFKEY_MOUNT+"./."+CONFKEY_MOUNTADDR, "./datas")
 				logs.Infoln("Add mount: type=LOCAL, addr=./datas")
 			}
 		},
 		OnInit: func() {
 			// 初始化加密
-			encryptionMode := fns.c.GetConfig(CONFKEY_ENCRYPTIONMODE).ToString("")
-			encryptionPwd := fns.c.GetConfig(CONFKEY_ENCRYPTIONPWD).ToString("")
+			encryptionMode := fns.config.GetConfig(CONFKEY_ENCRYPTIONMODE).ToString("")
+			encryptionPwd := fns.config.GetConfig(CONFKEY_ENCRYPTIONPWD).ToString("")
 			if len(encryptionPwd) > 0 && len(encryptionMode) == 0 {
 				encryptionMode = filesecure.ENCRYPTIONMODE_XOR
 			}
-			fns.fsc = filesecure.NewFileSecure(encryptionPwd, encryptionMode)
-			
+			fns.fsecure = filesecure.NewFileSecure(encryptionPwd, encryptionMode)
+
 			// 挂载目录
-			mount := fns.c.GetConfig(CONFKEY_MOUNT).ToStrMap(make(map[string]interface{}))
+			mount := fns.config.GetConfig(CONFKEY_MOUNT).ToStrMap(make(map[string]interface{}))
 			if len(mount) == 0 {
 				logs.Panicln("Not find mount config, in config key: " + CONFKEY_MOUNT)
 			}
-			fns.mt = new(dirmount.DIRMount)
+			fns.dirmt = new(dirmount.DIRMount)
 			// 注册支持的驱动
-			fns.mt.RegisterFileDriver(new(fsdrivers.LocalDriver)).LoadAllMount(mount)
+			fns.dirmt.RegisterFileDriver(new(fsdrivers.LocalDriver)).LoadAllMount(mount)
 		},
 	}
 }
@@ -73,7 +73,7 @@ func (fns *FileDatas) getPathDriver(relativePath string) (ifiledatas.FileDriver,
 	if relativePath, err := checkPathSafety(relativePath); nil != err {
 		return nil, err
 	} else {
-		return fns.mt.GetFileDriver(relativePath), nil
+		return fns.dirmt.GetFileDriver(relativePath), nil
 	}
 }
 
@@ -136,7 +136,7 @@ func (fns *FileDatas) DoWrite(relativePath string, ioReader io.Reader) error {
 	if nil != err {
 		return err
 	}
-	return fs.DoWrite(relativePath, fns.fsc.EncodeWrapper(ioReader))
+	return fs.DoWrite(relativePath, fns.fsecure.EncodeWrapper(ioReader))
 }
 
 // DoRead 读取文件
@@ -148,7 +148,7 @@ func (fns *FileDatas) DoRead(relativePath string, offset int64) (io.ReadCloser, 
 	if r, err := fs.DoRead(relativePath, offset); nil != err {
 		return nil, err
 	} else {
-		return fns.fsc.DecodeWrapper(r, offset), nil
+		return fns.fsecure.DecodeWrapper(r, offset), nil
 	}
 }
 
@@ -257,7 +257,7 @@ func (fns *FileDatas) GetDirNodeList(relativePath string, limit int, offset int)
 			return res, err
 		} else {
 			// 挂载目录
-			if mLS := fns.mt.ListChildMount(relativePath); len(mLS) > 0 {
+			if mLS := fns.dirmt.ListChildMount(relativePath); len(mLS) > 0 {
 				for i := 0; i < len(mLS); i++ {
 					existedIndex := -1
 					for j := 0; j < len(nodes); j++ {
@@ -271,7 +271,7 @@ func (fns *FileDatas) GetDirNodeList(relativePath string, limit int, offset int)
 					if relativePath != "/" {
 						childPath = relativePath + childPath
 					}
-					mtfs := fns.mt.GetFileDriver(childPath)
+					mtfs := fns.dirmt.GetFileDriver(childPath)
 					if node := mtfs.GetNode(childPath); nil != node {
 						if existedIndex == -1 {
 							nodes = append(nodes, *node)
@@ -314,7 +314,7 @@ func (fns *FileDatas) groupPathByDriver(srcList []string) (map[string][]string, 
 	for i := 0; i < len(srcList); i++ {
 		if relativePath, err := checkPathSafety(srcList[i]); nil != err {
 			return nil, err
-		} else if mnode := fns.mt.GetMountNode(relativePath); nil != mnode {
+		} else if mnode := fns.dirmt.GetMountNode(relativePath); nil != mnode {
 			if val, ok := result[mnode.Type]; ok {
 				result[mnode.Type] = append(val, relativePath)
 			} else {

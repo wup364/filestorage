@@ -24,9 +24,9 @@ import (
 
 // User4RPC 用户管理模块
 type User4RPC struct {
-	us *repository.UserRepo
-	c  ipakku.AppConfig `@autowired:"AppConfig"`
-	ch ipakku.AppCache  `@autowired:"AppCache"`
+	us     *repository.UserRepo
+	ch     ipakku.AppCache         `@autowired:"AppCache"`
+	config constant.User4RPCConfig `@autoConfig:""`
 }
 
 // AsModule 作为一个模块
@@ -38,12 +38,12 @@ func (umg *User4RPC) AsModule() ipakku.Opts {
 		OnReady: func(mctx ipakku.Loader) {
 			umg.us = &repository.UserRepo{}
 			deftDataSource := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#user?cache=shared"
-			confDataSource := umg.c.GetConfig("store.user4rpc.datasource").ToString(deftDataSource)
+			confDataSource := umg.config.Datasource.ToString(deftDataSource)
 			if confDataSource == deftDataSource {
 				umg.mkSqliteDIR() // 创建sqlite文件存放目录
 			}
 			if err := umg.us.Initial(ifilestorage.DBSetting{
-				DriverName:     umg.c.GetConfig("store.user4rpc.driver").ToString("sqlite3"),
+				DriverName:     umg.config.Driver,
 				DataSourceName: confDataSource,
 			}); nil != err {
 				logs.Panicln(err)
