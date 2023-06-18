@@ -24,8 +24,8 @@ import (
 // FileNames 文件命名空间管理
 type FileNames struct {
 	NameManage
-	c   ipakku.AppConfig    `@autowired:"AppConfig"`
-	ev1 ipakku.AppSyncEvent `@autowired:"AppEvent"`
+	config filenamesConfig     `@autoConfig:""`
+	ev1    ipakku.AppSyncEvent `@autowired:"AppEvent"`
 }
 
 // AsModule 作为一个模块
@@ -37,12 +37,12 @@ func (fns *FileNames) AsModule() ipakku.Opts {
 		OnReady: func(mctx ipakku.Loader) {
 			fns.ev = fns.ev1
 			deftDataSource := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#filenames?cache=shared"
-			confDataSource := fns.c.GetConfig("store.filenames.datasource").ToString(deftDataSource)
+			confDataSource := fns.config.datasource.ToString(deftDataSource)
 			if deftDataSource == confDataSource {
 				fns.mkSqliteDIR()
 			}
 			fns.Setting(ifilestorage.DBSetting{
-				DriverName:     fns.c.GetConfig("store.filenames.driver").ToString("sqlite3"),
+				DriverName:     fns.config.driver,
 				DataSourceName: confDataSource,
 			})
 		},

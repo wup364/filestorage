@@ -12,6 +12,8 @@ package namenode
 import (
 	"errors"
 	"strings"
+
+	"github.com/wup364/pakku/utils/utypes"
 )
 
 const (
@@ -24,6 +26,14 @@ var ErrInvalidToken = errors.New("invalid token")
 
 // ErrDataNodeNotAlive datanode 没有启动
 var ErrDataNodeNotAlive = errors.New("datanode not alive")
+
+// namenodeConfig 配置信息
+type namenodeConfig struct {
+	deletedaddr struct {
+		datasource utypes.Object `@value:"store.deletedaddr.datasource"`
+		driver     string        `@value:"store.deletedaddr.driver:sqlite3"`
+	}
+}
 
 // GetNodeNoByAddr 截取datanode文件地址中的datanode编号 DN101@xxxxxxxx => DN101
 func GetNodeNoByAddr(addr string) string {

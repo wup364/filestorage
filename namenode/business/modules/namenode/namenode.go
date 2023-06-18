@@ -24,7 +24,7 @@ import (
 // NameNode 元数据节点
 type NameNode struct {
 	NameNodeImpl
-	cf ipakku.AppConfig `@autowired:"AppConfig"`
+	config namenodeConfig `@autoConfig:""`
 }
 
 // AsModule 作为一个模块
@@ -34,21 +34,19 @@ func (n *NameNode) AsModule() ipakku.Opts {
 		Version:     1.0,
 		Description: "元数据节点",
 		OnReady: func(mctx ipakku.Loader) {
-			if err := mctx.AutoWired(&n.NameNodeImpl); nil != err {
-				logs.Panicln(err)
-			} else {
-				n.da = &Addr4Deleted{}
-				n.d = datanodes.NewConn4DataNodes(n.e)
-				mctx.SetParam("Conn4DataNodes", n.d) // 用于依赖注入
-			}
+
+			n.da = &Addr4Deleted{}
+			n.d = datanodes.NewConn4DataNodes(n.e)
+			mctx.SetParam("Conn4DataNodes", n.d) // 用于依赖注入
+
 			//
 			deftDataSource := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#deleted?cache=shared"
-			confDataSource := n.cf.GetConfig("store.deletedaddr.datasource").ToString(deftDataSource)
+			confDataSource := n.config.deletedaddr.datasource.ToString(deftDataSource)
 			if deftDataSource == confDataSource {
 				n.mkSqliteDIR()
 			}
 			n.da.Initial("deletedaddr", ifilestorage.DBSetting{
-				DriverName:     n.cf.GetConfig("store.deletedaddr.driver").ToString("sqlite3"),
+				DriverName:     n.config.deletedaddr.driver,
 				DataSourceName: confDataSource,
 			})
 			// token缓存库
@@ -84,8 +82,6 @@ func (n *NameNode) AsModule() ipakku.Opts {
 			if nil != err {
 				logs.Panicln(err)
 			}
-		},
-		OnInit: func() {
 		},
 	}
 }

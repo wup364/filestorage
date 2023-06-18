@@ -22,9 +22,9 @@ import (
 
 // User4RPC 用户管理模块
 type User4RPC struct {
-	us *UserRepo
-	c  ipakku.AppConfig `@autowired:"AppConfig"`
-	ch ipakku.AppCache  `@autowired:"AppCache"`
+	repo   *UserRepo
+	config user4rpcConfig  `@autoConfig:""`
+	cache  ipakku.AppCache `@autowired:"AppCache"`
 }
 
 // AsModule 作为一个模块
@@ -34,49 +34,47 @@ func (umg *User4RPC) AsModule() ipakku.Opts {
 		Version:     1.0,
 		Description: "RPC用户鉴权",
 		OnReady: func(mctx ipakku.Loader) {
-			umg.us = &UserRepo{}
+			umg.repo = &UserRepo{}
 			deftDataSource := "./.datas/" + mctx.GetParam(ipakku.PARAMKEY_APPNAME).ToString("app") + "#user?cache=shared"
-			confDataSource := umg.c.GetConfig("store.user4rpc.datasource").ToString(deftDataSource)
+			confDataSource := umg.config.datasource.ToString(deftDataSource)
 			if confDataSource == deftDataSource {
 				umg.mkSqliteDIR() // 创建sqlite文件存放目录
 			}
-			if err := umg.us.Initial(ifilestorage.DBSetting{
-				DriverName:     umg.c.GetConfig("store.user4rpc.driver").ToString("sqlite3"),
+			if err := umg.repo.Initial(ifilestorage.DBSetting{
+				DriverName:     umg.config.driver,
 				DataSourceName: confDataSource,
 			}); nil != err {
 				logs.Panicln(err)
 			}
 			// 注册 accesstoken 缓存库, x分钟过期
-			if err := umg.ch.RegLib(Clib_Access, 60*60*24); nil != err {
+			if err := umg.cache.RegLib(Clib_Access, 60*60*24); nil != err {
 				logs.Panicln(err)
 			}
 		},
 		OnSetup: func() {
-			if err := umg.us.Install(); nil != err {
+			if err := umg.repo.Install(); nil != err {
 				logs.Panicln(err)
 			}
-		},
-		OnInit: func() {
 		},
 	}
 }
 
 // ListAllUsers 列出所有用户数据, 无分页
 func (umg *User4RPC) ListAllUsers() ([]ifilestorage.UserInfo, error) {
-	return umg.us.ListAllUsers()
+	return umg.repo.ListAllUsers()
 }
 
 // QueryUser 根据用户ID查询详细信息
 func (umg *User4RPC) QueryUser(userID string) (*ifilestorage.UserInfo, error) {
-	return umg.us.QueryUser(userID)
+	return umg.repo.QueryUser(userID)
 }
 
 // Clear 清空用户
 func (umg *User4RPC) Clear() error {
-	if users, err := umg.us.ListAllUsers(); nil == err {
+	if users, err := umg.repo.ListAllUsers(); nil == err {
 		if len(users) > 0 {
 			for _, val := range users {
-				if err = umg.us.DelUser(val.UserID); nil != err {
+				if err = umg.repo.DelUser(val.UserID); nil != err {
 					return err
 				}
 			}
@@ -92,7 +90,7 @@ func (umg *User4RPC) AddUser(user *ifilestorage.CreateUserBo) error {
 	if u, _ := umg.QueryUser(user.UserID); nil != u {
 		return ErrCreateFailed101
 	}
-	return umg.us.AddUser(user)
+	return umg.repo.AddUser(user)
 }
 
 // UpdatePWD 修改用户密码
@@ -102,7 +100,7 @@ func (umg *User4RPC) UpdatePWD(userID, pwd string) error {
 	} else if nil == userOld {
 		return ErrorUserNotExist
 	}
-	return umg.us.UpdatePWD(&ifilestorage.PwdUpdateBo{
+	return umg.repo.UpdatePWD(&ifilestorage.PwdUpdateBo{
 		UserID:  userID,
 		UserPWD: pwd,
 	})
@@ -121,17 +119,17 @@ func (umg *User4RPC) UpdateUserName(userID, userName string) error {
 		return ErrorUserNotExist
 	}
 	userOld.UserName = userName
-	return umg.us.UpdateUser(userOld)
+	return umg.repo.UpdateUser(userOld)
 }
 
 // DelUser 根据userID删除用户
 func (umg *User4RPC) DelUser(userID string) error {
-	return umg.us.DelUser(userID)
+	return umg.repo.DelUser(userID)
 }
 
 // CheckPwd 校验密码是否一致
 func (umg *User4RPC) CheckPwd(userID, pwd string) bool {
-	return umg.us.CheckPwd(userID, pwd)
+	return umg.repo.CheckPwd(userID, pwd)
 }
 
 // AskAccess 获取access
@@ -149,7 +147,7 @@ func (umg *User4RPC) AskAccess(userID, pwd string) (*ifilestorage.UserAccess, er
 			AccessKey: strutil.GetUUID(),
 			SecretKey: strutil.GetUUID(),
 		}
-		if err := umg.ch.Set(Clib_Access, access.AccessKey, access); nil != err {
+		if err := umg.cache.Set(Clib_Access, access.AccessKey, access); nil != err {
 			return nil, err
 		}
 		return access, nil
@@ -159,7 +157,7 @@ func (umg *User4RPC) AskAccess(userID, pwd string) (*ifilestorage.UserAccess, er
 // GetUserAccess 获取 useraccess
 func (umg *User4RPC) GetUserAccess(accessKey string) (*ifilestorage.UserAccess, error) {
 	var val ifilestorage.UserAccess
-	if err := umg.ch.Get(Clib_Access, accessKey, &val); nil == err {
+	if err := umg.cache.Get(Clib_Access, accessKey, &val); nil == err {
 		return &val, nil
 	} else if err != ipakku.ErrNoCacheHit {
 		return nil, err
@@ -170,8 +168,8 @@ func (umg *User4RPC) GetUserAccess(accessKey string) (*ifilestorage.UserAccess, 
 // RefreshAccessKey 刷新 access
 func (umg *User4RPC) RefreshAccessKey(accessKey string) error {
 	var val ifilestorage.UserAccess
-	if err := umg.ch.Get(Clib_Access, accessKey, &val); nil == err {
-		if err := umg.ch.Set(Clib_Access, val.AccessKey, &val); nil != err {
+	if err := umg.cache.Get(Clib_Access, accessKey, &val); nil == err {
+		if err := umg.cache.Set(Clib_Access, val.AccessKey, &val); nil != err {
 			return err
 		}
 		return nil
