@@ -17,6 +17,8 @@ import (
 	"datanode/business/modules/datanode/fio"
 	"datanode/business/modules/datanode/remote"
 	"datanode/business/modules/datanode/repository"
+	"datanode/business/modules/datanode/scaner"
+	"datanode/business/modules/datanode/versionup"
 	"datanode/ifilestorage"
 	"time"
 
@@ -40,11 +42,16 @@ type DataNode struct {
 func (dn *DataNode) AsModule() ipakku.Opts {
 	return ipakku.Opts{
 		Name:        "DataNode",
-		Version:     1.0,
+		Version:     1.1,
 		Description: "数据存储节点",
-		OnReady:     dn.onReady,
-		OnSetup:     dn.onSetup,
-		OnInit:      dn.onInit,
+		Updaters: func(mctx ipakku.Loader) ipakku.Updaters {
+			return []ipakku.Updater{
+				&versionup.Updater_1_1{DHS: dn.dhs},
+			}
+		},
+		OnReady: dn.onReady,
+		OnSetup: dn.onSetup,
+		OnInit:  dn.onInit,
 	}
 }
 
@@ -132,6 +139,9 @@ func (dn *DataNode) onInit() {
 
 	// 上传缓存清理程序
 	go cleaner.NewUploadTempCleaner(dn.fd).StartCleaner()
+
+	// 从数据库中读取hash, 并验证文件是否还存在
+	go scaner.NewDataHashCanerForRepo(dn.fd, dn.dhs).StartScaner()
 }
 
 func (dn *DataNode) checkConn() {

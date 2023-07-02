@@ -12,6 +12,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"datanode/ifilestorage"
 	"errors"
@@ -20,8 +21,9 @@ import (
 )
 
 const (
-	status_hashdata_disabled = 0
-	status_hashdata_enable   = 1
+	status_hashdata_disabled            = 0
+	status_hashdata_enable              = 1
+	status_hashdata_scanmarker_notfound = -1
 )
 
 // NewDataHashRepo NewDataHashRepo
@@ -63,6 +65,11 @@ func (ds *DataHashRepo) GetSqlTx() (*sql.Tx, error) {
 // GetSqlTx 获取数据库对象
 func (ds *DataHashRepo) GetDB() *sql.DB {
 	return ds.db
+}
+
+// GetTable 获取数据库表名字
+func (ds *DataHashRepo) GetTable() string {
+	return ds.table
 }
 
 // DisableInIds 设置节点为删除
@@ -185,6 +192,64 @@ func (ds *DataHashRepo) ListDisabled(conn *sql.DB) (nodes []ifilestorage.HNode, 
 	return nodes, err
 }
 
+// GetSmallestScanmarker 获取最小的数字的扫描标签
+func (ds *DataHashRepo) GetSmallestScanmarker(conn *sql.DB) (scanMarker int, err error) {
+	var rows *sql.Rows
+	if rows, err = conn.Query("select min(scanmarker) from " + ds.table + " where scanmarker>-1"); nil == err {
+		defer rows.Close()
+		if rows.Next() {
+			var scanMarker interface{}
+			if err = rows.Scan(&scanMarker); nil == err {
+				if intval, ok := scanMarker.(int); ok {
+					return intval, nil
+				} else if intval, ok := scanMarker.(int64); ok {
+					return int(intval), nil
+				}
+			}
+		}
+	}
+	return 0, err
+}
+
+// ListEnabledHashByScanmarker 查找扫描标签为某个值的有效hash列表
+func (ds *DataHashRepo) ListEnabledHashByScanmarker(conn *sql.DB, scanmarker, limit, offset int) (hashs []string, err error) {
+	sqlstr := "select sha256 from " + ds.table + " where status=? and scanmarker=? group by sha256 limit ? offset ?"
+	var rows *sql.Rows
+	if rows, err = conn.Query(sqlstr, status_hashdata_enable, scanmarker, limit, offset); nil == err {
+		defer rows.Close()
+		for rows.Next() {
+			var sha256 string
+			if err = rows.Scan(&sha256); nil == err {
+				hashs = append(hashs, sha256)
+			} else {
+				hashs = make([]string, 0)
+				break
+			}
+		}
+	}
+	return hashs, err
+}
+
+// UpdateScanmarker2NotFoundBySha256 根据sha256更新scanmarker到未找到状态
+func (ds *DataHashRepo) UpdateScanmarker2NotFoundBySha256(conn *sql.Tx, hashs []string) (err error) {
+	return ds.UpdateScanmarkerBySha256(conn, hashs, status_hashdata_scanmarker_notfound)
+}
+
+// UpdateScanmarkerBySha256 根据sha256更新scanmarker
+func (ds *DataHashRepo) UpdateScanmarkerBySha256(conn *sql.Tx, hashs []string, scanmarker int) (err error) {
+	if len(hashs) == 0 {
+		return errors.New("hashs is empty")
+	}
+	var stmt *sql.Stmt
+	execParams := []any{scanmarker}
+	execParams = append(execParams, ConvertStrArray2AnyArray(hashs)...)
+	stmt, err = conn.Prepare("update " + ds.table + " set scanmarker=? where sha256 in (" + GetPlaceholder("?", ",", len(hashs)) + ")")
+	if nil == err {
+		_, err = stmt.ExecContext(context.Background(), execParams...)
+	}
+	return err
+}
+
 // QueryRepeatedHashAndDisabledIds 获取hash重复(disabled的和非disabled的数据), 并且已标记为删除的数据
 func (ds *DataHashRepo) QueryRepeatedHashAndDisabledIds(conn *sql.DB) (ids []string, hashs []string, err error) {
 	sqlstr := "select id, sha256 from ("
@@ -235,17 +300,15 @@ func (ds *DataHashRepo) GetHash(conn *sql.DB, id string) (*ifilestorage.HNode, e
 
 // CreateTables 初始化结构
 func (ds *DataHashRepo) CreateTables(conn *sql.Tx) (err error) {
-	dropSql := "drop table  `" + ds.table + "`"
-	tableSql := "create table if not exists `" + ds.table + "`  (`id` char(36)  not null, `status` int not null, `fid` char(36)  not null, `sha256` char(64) default '', primary key (`id`))"
+	tableSql := "create table if not exists `" + ds.table + "`  (`id` char(36)  not null, `status` int not null, `fid` char(36)  not null, `sha256` char(64) default '', `scanmarker` int not null default 0, primary key (`id`))"
 	IndexSql := []string{
 		"create index " + ds.table + "_index_id on " + ds.table + " (id)",
 		"create index " + ds.table + "_index_fid on " + ds.table + " (fid)",
 		"create index " + ds.table + "_index_status on " + ds.table + " (status)",
 		"create index " + ds.table + "_index_sha256 on " + ds.table + " (sha256)",
+		"create index " + ds.table + "_index_scanmarker on " + ds.table + " (scanmarker)",
 	}
 
-	conn.Exec(dropSql)
-	//if nil == err {
 	_, err = conn.Exec(tableSql)
 	if nil == err {
 		for i := 0; i < len(IndexSql); i++ {
@@ -254,6 +317,5 @@ func (ds *DataHashRepo) CreateTables(conn *sql.Tx) (err error) {
 			}
 		}
 	}
-	//}
 	return err
 }

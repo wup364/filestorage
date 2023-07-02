@@ -154,15 +154,12 @@ func (ds *DataNodeRepo) GetNode(conn *sql.DB, id string) (*ifilestorage.DNode, e
 
 // CreateTables 初始化结构
 func (ds *DataNodeRepo) CreateTables(conn *sql.Tx) (err error) {
-	dropSql := "drop table  `" + ds.table + "`"
 	tableSql := "create table if not exists `" + ds.table + "`  (`id` char(36)  not null, `size` bigint not null, `sha256` char(64) null, `pieces` text, primary key (`id`))"
 	IndexSql := []string{
 		"create index " + ds.table + "_index_id on " + ds.table + " (id)",
 		"create index " + ds.table + "_index_sha256 on " + ds.table + " (sha256)",
 	}
 
-	conn.Exec(dropSql)
-	//if nil == err {
 	_, err = conn.Exec(tableSql)
 	if nil == err {
 		for i := 0; i < len(IndexSql); i++ {
@@ -171,6 +168,5 @@ func (ds *DataNodeRepo) CreateTables(conn *sql.Tx) (err error) {
 			}
 		}
 	}
-	//}
 	return err
 }

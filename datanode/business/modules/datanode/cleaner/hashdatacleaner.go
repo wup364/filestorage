@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"github.com/wup364/pakku/utils/logs"
+	"github.com/wup364/pakku/utils/strutil"
 )
 
 // NewHashDataCleaner NewHashDataCleaner
@@ -64,7 +65,7 @@ func (cls *HashDataClear) StartCleaner() {
 	cls.started = true
 	defer func() {
 		if err := recover(); err != nil {
-			logs.Errorln("Check deleted addrs[recover]: ", err)
+			logs.Errorln("HashDataClear [recover]: ", err)
 			cls.started = false
 			cls.StartCleaner()
 		}
@@ -81,7 +82,14 @@ func (cls *HashDataClear) StartCleaner() {
 				dids[i] = addrs[i].Id
 				fids[i] = addrs[i].Fid
 			}
-			if err = cls.doClear(fids); nil == err {
+
+			optid := strutil.GetUUID()
+			logs.Infof("QueryDeletedDataAddr optid=%s, list=%s \r\n", optid, dids)
+			if err = cls.doClearHashRecords(optid, fids); nil == err && cls.delFile {
+				err = cls.doClearHashFile()
+			}
+			if nil == err {
+				logs.Infof("ConfirmDeletedDataAddr optid=%s\r\n", optid)
 				err = cls.nrpc.DoConfirmDeletedDataAddr(dids)
 			}
 		}
@@ -95,46 +103,71 @@ func (cls *HashDataClear) StartCleaner() {
 	}
 }
 
-// doClear doClear
+// doClearHashRecords 清理数据库数据
 // . 根据文件fid删除 datanodes 表的相关数据
 // . 根据文件fid操作 datahashs 表, 状态设置为删除
 // . 左连接查询出标记为删除, 但是还有引用的数据, 删除这些数据
-func (cls *HashDataClear) doClear(fids []string) (err error) {
+func (cls *HashDataClear) doClearHashRecords(optid string, fids []string) (err error) {
+	// . 根据文件fid删除 datanodes 表的相关数据
+	if err = cls.deleteDataNodeRecords(fids); nil != err {
+		logs.Errorf("deleteDataNodeRecords optid=%s, err=%s \r\n", optid, err.Error())
+		return // 删不掉不要紧, 只要没提交到namenode就会再次尝试
+	}
+
+	// . 根据文件fid操作 datahashs 表, 状态设置为删除
+	if err = cls.disableDatahashsRecord(fids); nil != err {
+		logs.Errorf("disableDatahashsRecord optid=%s, err=%s \r\n", optid, err.Error())
+		return // 删不掉不要紧, 只要没提交到namenode就会再次尝试
+	}
+
+	// . 左连接查询出标记为删除, 但是还有引用的数据, 删除这些数据
+	if _, err = cls.deleteRepeatedAndDisabledHashDataRecords(); nil != err {
+		logs.Errorf("deleteRepeatedAndDisabledHashDataRecords optid=%s, err=%s \r\n", optid, err.Error())
+		return // 删不掉不要紧, 只要没提交到namenode就会再次尝试
+	}
+	return
+}
+
+// deleteDataNodeRecords 根据文件fid删除 datanodes 表的相关数据
+func (cls *HashDataClear) deleteDataNodeRecords(fids []string) (err error) {
 	var tx *sql.Tx
 	if tx, err = cls.dns.GetSqlTx(); nil == err {
-		// . 根据文件fid删除 datanodes 表的相关数据
 		if err = cls.dns.DeleteInIDs(tx, fids); nil == err {
-			if err = tx.Commit(); nil == err {
-				// . 根据文件fid操作 datahashs 表, 状态设置为删除
-				if tx, err = cls.dhs.GetSqlTx(); nil == err {
-					if err = cls.dhs.DisableInFIds(tx, fids); nil == err {
-						err = tx.Commit()
-					} else {
-						tx.Rollback()
-					}
-				}
-				// . 左连接查询出标记为删除, 但是还有引用的数据, 删除这些数据
-				if nil == err {
-					var disIds []string
-					if disIds, _, err = cls.dhs.QueryRepeatedHashAndDisabledIds(cls.dhs.GetDB()); nil == err && len(disIds) > 0 {
-						if tx, err = cls.dhs.GetSqlTx(); nil == err {
-							if err = cls.dhs.DeleteInIDs(tx, disIds); nil == err {
-								err = tx.Commit()
-							} else {
-								tx.Rollback()
-							}
-						}
-					}
-				}
-				if nil == err && cls.delFile {
-					err = cls.doClearHashFile()
-				}
-			}
+			err = tx.Commit()
 		} else {
 			tx.Rollback()
 		}
 	}
-	return err
+	return
+}
+
+// disableDatahashsRecord 根据文件fid操作 datahashs 表, 状态设置为删除
+func (cls *HashDataClear) disableDatahashsRecord(fids []string) (err error) {
+	var tx *sql.Tx
+	if tx, err = cls.dhs.GetSqlTx(); nil == err {
+		if err = cls.dhs.DisableInFIds(tx, fids); nil == err {
+			err = tx.Commit()
+		} else {
+			tx.Rollback()
+		}
+	}
+	return
+}
+
+// deleteRepeatedAndDisabledHashDataRecords 左连接查询出标记为删除, 但是还有引用的数据, 删除这些数据
+func (cls *HashDataClear) deleteRepeatedAndDisabledHashDataRecords() (hashs []string, err error) {
+	var tx *sql.Tx
+	var disIds []string
+	if disIds, hashs, err = cls.dhs.QueryRepeatedHashAndDisabledIds(cls.dhs.GetDB()); nil == err && len(disIds) > 0 {
+		if tx, err = cls.dhs.GetSqlTx(); nil == err {
+			if err = cls.dhs.DeleteInIDs(tx, disIds); nil == err {
+				err = tx.Commit()
+			} else {
+				tx.Rollback()
+			}
+		}
+	}
+	return
 }
 
 // doClearHashFile 清理冗余的hash文件
@@ -143,70 +176,74 @@ func (cls *HashDataClear) doClear(fids []string) (err error) {
 // . 剩下的锁定成功的, 就是没有引用的hash, 直接删除文件并解锁
 // . 循环锁定失败的部分, 执行上述动作
 func (cls *HashDataClear) doClearHashFile() (err error) {
-	var disabled []ifilestorage.HNode
+	var disabledNodes []ifilestorage.HNode
 	// . 查询 datahashs status=0 的数据, 得到hash值, 去重然后锁定.  当其中部分hash被其他线程锁定时跳过他
-	if disabled, err = cls.dhs.ListDisabled(cls.dhs.GetDB()); nil == err && len(disabled) > 0 {
-		needlockhash := make([]string, 0)
-		allhashMap := make(map[string]uint8)
-		for i := 0; i < len(disabled); i++ {
-			if _, ok := allhashMap[disabled[i].Hash]; !ok {
-				allhashMap[disabled[i].Hash] = 0
-				needlockhash = append(needlockhash, disabled[i].Hash)
-			}
-		}
-		// 初步标记即将删除的hash
-		markedhash := cls.dhc.MarkHashOnDelete(needlockhash)
-		defer func() {
-			for i := 0; i < len(markedhash); i++ {
-				cls.dhc.ReleaseDeleteLock(markedhash[i])
-			}
-		}()
-		var tx *sql.Tx
-		var hashs []string
-		var disIds []string
-		// . 左连接查询出标记为删除, 但是还有引用的数据, 删除这些数据, 并解锁这部分hash
-		if disIds, hashs, err = cls.dhs.QueryRepeatedHashAndDisabledIds(cls.dhs.GetDB()); nil == err && len(disIds) > 0 {
-			if tx, err = cls.dhs.GetSqlTx(); nil == err {
-				if err = cls.dhs.DeleteInIDs(tx, disIds); nil == err {
-					if err = tx.Commit(); nil == err {
-						for i := 0; i < len(hashs); i++ {
-							cls.dhc.RemoveHashDeleteMark(hashs[i])
-						}
-					}
-				} else {
-					tx.Rollback()
-				}
-			}
-		}
-		// . 剩下的锁定成功的, 就是没有引用的hash, 直接删除文件并解锁
-		if nil == err {
-			candelhash := make([]string, 0)
-			for i := 0; i < len(markedhash); i++ {
-				if cls.dhc.LockHashOnDelete(markedhash[i]) {
-					var err error
-					if temp := fio.GetArchivedPath4Hash(markedhash[i]); cls.fds.IsFile(temp) {
-						if err = cls.fds.DoDelete(temp); nil != err {
-							logs.Errorln(err)
-						}
-					}
-					cls.dhc.ReleaseDeleteLock(markedhash[i])
-					if nil == err {
-						candelhash = append(candelhash, markedhash[i])
-					}
-				}
-			}
-			// 删除这些已经删除的hash
-			if len(candelhash) > 0 {
-				if tx, err = cls.dhs.GetSqlTx(); nil == err {
-					if err = cls.dhs.DeleteInHashs(tx, candelhash); nil == err {
-						err = tx.Commit()
-					} else {
-						tx.Rollback()
-					}
-				}
-			}
-		}
-		// . 循环锁定失败的部分, 执行上述动作 - //
+	if disabledNodes, err = cls.dhs.ListDisabled(cls.dhs.GetDB()); nil != err || len(disabledNodes) == 0 {
+		return
 	}
+
+	// 初步标记即将删除的hash
+	needlockhash := make([]string, 0)
+	allhashMap := make(map[string]uint8)
+	for i := 0; i < len(disabledNodes); i++ {
+		if _, ok := allhashMap[disabledNodes[i].Hash]; !ok {
+			allhashMap[disabledNodes[i].Hash] = 0
+			needlockhash = append(needlockhash, disabledNodes[i].Hash)
+		}
+	}
+	markedhash := cls.dhc.MarkHashOnDelete(needlockhash)
+	defer func() {
+		for i := 0; i < len(markedhash); i++ {
+			cls.dhc.ReleaseDeleteLock(markedhash[i])
+		}
+	}()
+
+	// . 左连接查询出标记为删除, 但是还有引用的数据, 删除这些数据, 并解锁这部分hash
+	if hashs, err := cls.deleteRepeatedAndDisabledHashDataRecords(); nil != err {
+		return err
+	} else if len(hashs) > 0 {
+		for i := 0; i < len(hashs); i++ {
+			cls.dhc.RemoveHashDeleteMark(hashs[i])
+		}
+	}
+
+	// . 剩下的锁定成功的, 就是没有引用的hash, 直接删除文件并解锁
+	if candelhash := cls.tryDeleteAndUnlokHashFile(markedhash); len(candelhash) > 0 {
+		// 删除这些已经删除的hash
+		err = cls.deleteDataHashRecord(candelhash)
+	}
+	// . 循环锁定失败的部分, 执行上述动作 - //
 	return err
+}
+
+// deleteDataHashRecord 删除hash片记录
+func (cls *HashDataClear) deleteDataHashRecord(hashs []string) (err error) {
+	var tx *sql.Tx
+	if tx, err = cls.dhs.GetSqlTx(); nil == err {
+		if err = cls.dhs.DeleteInHashs(tx, hashs); nil == err {
+			err = tx.Commit()
+		} else {
+			tx.Rollback()
+		}
+	}
+	return
+}
+
+// tryDeleteAndUnlokHashFile 尝试删除hash文件, 并解锁, 返回删除成功的列表
+func (cls *HashDataClear) tryDeleteAndUnlokHashFile(hashs []string) (succeed []string) {
+	succeed = make([]string, 0)
+	for i := 0; i < len(hashs); i++ {
+		if !cls.dhc.LockHashOnDelete(hashs[i]) {
+			continue
+		}
+		if temp := fio.GetArchivedPath4Hash(hashs[i]); cls.fds.IsFile(temp) {
+			if err := cls.fds.DoDelete(temp); nil == err {
+				succeed = append(succeed, hashs[i])
+			} else {
+				logs.Errorf("tryDeleteAndUnlokHashFile path=%s, err=%s \r\n", temp, err.Error())
+			}
+		}
+		cls.dhc.ReleaseDeleteLock(hashs[i])
+	}
+	return
 }
