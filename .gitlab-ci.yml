@@ -26,6 +26,7 @@ build-job:       # This job runs in the build stage, which runs first.
   script:
     - echo "Compiling the code..."
     - export GOROOT=/opt/go
+    - export GOPROXY=https://goproxy.cn,direct
     - export PATH=$PATH:/opt/go/bin
     - go version
     - ./build_linux.sh
