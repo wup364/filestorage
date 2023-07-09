@@ -25,7 +25,7 @@ func (up Updater_1_1) Execute(mctx ipakku.Loader) (err error) {
 		return
 	}
 
-	sqlStr := "alter table " + table + " add  `scanmarker` int not null default 0; create index " + table + "_index_scanmarker on " + table + " (scanmarker);"
+	sqlStr := "alter table " + table + " add  `scanmarker` int not null default 1; create index " + table + "_index_scanmarker on " + table + " (scanmarker);"
 	if _, err = sqlTx.Exec(sqlStr); nil != err {
 		sqlTx.Rollback()
 	} else {

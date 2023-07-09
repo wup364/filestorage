@@ -23,6 +23,7 @@ import (
 const (
 	status_hashdata_disabled            = 0
 	status_hashdata_enable              = 1
+	status_hashdata_scanmarker_default  = 1
 	status_hashdata_scanmarker_notfound = -1
 )
 
@@ -211,6 +212,26 @@ func (ds *DataHashRepo) GetSmallestScanmarker(conn *sql.DB) (scanMarker int, err
 	return 0, err
 }
 
+// ResetScanmarker2Default 重置扫描标签到默认值(不包含被标记成不存在的)
+func (ds *DataHashRepo) ResetScanmarker2Default(conn *sql.Tx) (err error) {
+	var stmt *sql.Stmt
+	stmt, err = conn.Prepare("update " + ds.table + " set scanmarker=?  where scanmarker>-1")
+	if nil == err {
+		_, err = stmt.Exec(status_hashdata_scanmarker_default)
+	}
+	return err
+}
+
+// ResetNotFoundScanmarker2Smallest 重置被标记为无效标签的数据到最小扫描标记
+func (ds *DataHashRepo) ResetNotFoundScanmarker2Smallest(conn *sql.Tx) (err error) {
+	var stmt *sql.Stmt
+	stmt, err = conn.Prepare("update " + ds.table + " set scanmarker=(select min(scanmarker) from " + ds.table + " where scanmarker>-1)  where scanmarker=-1")
+	if nil == err {
+		_, err = stmt.Exec()
+	}
+	return err
+}
+
 // ListEnabledHashByScanmarker 查找扫描标签为某个值的有效hash列表
 func (ds *DataHashRepo) ListEnabledHashByScanmarker(conn *sql.DB, scanmarker, limit, offset int) (hashs []string, err error) {
 	sqlstr := "select sha256 from " + ds.table + " where status=? and scanmarker=? group by sha256 limit ? offset ?"
@@ -300,7 +321,7 @@ func (ds *DataHashRepo) GetHash(conn *sql.DB, id string) (*ifilestorage.HNode, e
 
 // CreateTables 初始化结构
 func (ds *DataHashRepo) CreateTables(conn *sql.Tx) (err error) {
-	tableSql := "create table if not exists `" + ds.table + "`  (`id` char(36)  not null, `status` int not null, `fid` char(36)  not null, `sha256` char(64) default '', `scanmarker` int not null default 0, primary key (`id`))"
+	tableSql := "create table if not exists `" + ds.table + "`  (`id` char(36)  not null, `status` int not null, `fid` char(36)  not null, `sha256` char(64) default '', `scanmarker` int not null default 1, primary key (`id`))"
 	IndexSql := []string{
 		"create index " + ds.table + "_index_id on " + ds.table + " (id)",
 		"create index " + ds.table + "_index_fid on " + ds.table + " (fid)",

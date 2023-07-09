@@ -1,6 +1,6 @@
 module datanode
 
-go 1.14
+go 1.18
 
 // replace github.com/wup364/pakku => ../../pakkuboot/pakku
 

@@ -51,8 +51,8 @@ func (dhc *DataHashCanerForRepo) StartScaner() {
 	}()
 
 	if err := dhc.doInitScan(); nil != err {
-		logs.Panicln(err)
 		time.Sleep(time.Minute * 10)
+		logs.Panicln(err)
 	}
 
 	logs.Infoln("DataHashCanerForRepo StartScaner")
@@ -65,16 +65,45 @@ func (dhc *DataHashCanerForRepo) StartScaner() {
 			dhc.started = false
 			break
 		}
-		time.Sleep(time.Millisecond * 200)
+		time.Sleep(time.Millisecond * 100)
 	}
 	logs.Infoln("DataHashCanerForRepo scan complete")
 
+	if dhc.smallestScanmarker > 9 {
+		if err := dhc.resetScanmarker(); nil != err {
+			logs.Errorln(err)
+		}
+	}
+
+	//
 	time.Sleep(time.Hour * 24)
 	go dhc.StartScaner()
 }
 
 func (dhc *DataHashCanerForRepo) doInitScan() (err error) {
-	dhc.smallestScanmarker, err = dhc.dhs.GetSmallestScanmarker(dhc.dhs.GetDB())
+	var conn *sql.Tx
+	if conn, err = dhc.dhs.GetSqlTx(); nil == err {
+		if err = dhc.dhs.ResetNotFoundScanmarker2Smallest(conn); nil == err {
+			err = conn.Commit()
+		} else {
+			conn.Rollback()
+		}
+	}
+	if nil == err {
+		dhc.smallestScanmarker, err = dhc.dhs.GetSmallestScanmarker(dhc.dhs.GetDB())
+	}
+	return
+}
+
+func (dhc *DataHashCanerForRepo) resetScanmarker() (err error) {
+	var conn *sql.Tx
+	if conn, err = dhc.dhs.GetSqlTx(); nil == err {
+		if err = dhc.dhs.ResetScanmarker2Default(conn); nil == err {
+			err = conn.Commit()
+		} else {
+			conn.Rollback()
+		}
+	}
 	return
 }
 
