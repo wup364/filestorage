@@ -2,8 +2,8 @@ github.com/mattn/go-colorable v0.1.12 h1:jF+Du6AlPIjs2BiUiQlKOX0rt3SujHxPnksPKZb
 github.com/mattn/go-colorable v0.1.12/go.mod h1:u5H1YNBxpqRaxsYJYSkiCWKzEfiAb1Gb520KVy5xxl4=
 github.com/mattn/go-isatty v0.0.14 h1:yVuAays6BHfxijgZPzw+3Zlu5yQgKGP2/hcQbHb7S9Y=
 github.com/mattn/go-isatty v0.0.14/go.mod h1:7GGIvUiUoEMVVmxf/4nioHXj79iQHKdU27kJ6hsGG94=
-github.com/wup364/pakku v0.0.5 h1:WtJ/eVXAprhBPooB0cSfrfX7miojZTiS4fmM8yf2E30=
-github.com/wup364/pakku v0.0.5/go.mod h1:W19oCFXIoPzNZpt3DuJ+dFPBYPgZO/gKQm8cl0y0bAg=
+github.com/wup364/pakku v0.0.6 h1:A6XUDmqrzvqmR5iKTiUYMcTJg7XbumYvL8uil9Hbbc0=
+github.com/wup364/pakku v0.0.6/go.mod h1:W19oCFXIoPzNZpt3DuJ+dFPBYPgZO/gKQm8cl0y0bAg=
 golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.0.0-20210927094055-39ccf1dd6fa6/go.mod h1:oPkhp1MJrh7nUepCBck5+mAzfO9JrbApNNgaTdGDITg=
 golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 h1:WIoqL4EROvwiPdUtaip4VcDdpZ4kha7wBWZrbVKCIZg=

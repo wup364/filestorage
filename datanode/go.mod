@@ -6,5 +6,5 @@ go 1.18
 
 require (
 	github.com/mattn/go-sqlite3 v1.14.16
-	github.com/wup364/pakku v0.0.5
+	github.com/wup364/pakku v0.0.6
 )
