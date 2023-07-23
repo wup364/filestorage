@@ -34,7 +34,7 @@ type StreamTokenType int
 
 // IOpenApi 开放api
 type IOpenApi interface {
-	GetRPCConn() *Conn4RPC
+	ConnTest(user User) error
 
 	IsDir(src string) (bool, error)
 	IsFile(src string) (bool, error)
@@ -63,8 +63,10 @@ type IOpenApi interface {
 	DoWriteToken(nodeNo, token, endpoint string, pieceNumber int, sha256 string, reader io.Reader) error
 	DoReadToken(nodeNo, token, endpoint string, offset int64) (io.ReadCloser, error)
 }
+
+// IServerMG 管理类接口
 type IServerMG interface {
-	GetRPCConn() *Conn4RPC
+	ConnTest(user User) error
 	DoCreateUser(user CreateUserBo) (bool, error)
 	DoUpdatePWD(user, pwd string) (bool, error)
 	DoDeleteUser(userID string) (bool, error)

@@ -82,7 +82,10 @@ func (s *ShellSession) Login(passwd string) error {
 		User:   s.userName,
 		Passwd: passwd,
 	})
-	if err := s.openApi.GetRPCConn().DoLogin(); nil != err {
+	if err := s.openApi.ConnTest(opensdk.User{
+		User:   s.userName,
+		Passwd: passwd,
+	}); nil != err {
 		return err
 	}
 	// server manager

@@ -12,6 +12,7 @@ package datanode
 
 import (
 	"datanode/business/bizutils"
+	"datanode/business/modules/datanode/fio"
 	"errors"
 	"fmt"
 	"testing"
@@ -22,7 +23,7 @@ import (
 
 func TestGetArchivedPath4Hash(t *testing.T) {
 	// e/0d/afb6109ade/198327e54c/04b9e92ba9/25f29292f3/16210f4a98/e0dafb6109ade198327e54c04b9e92ba925f29292f316210f4a988c0851ea9b8
-	fmt.Println(getArchivedPath4Hash("e0dafb6109ade198327e54c04b9e92ba925f29292f316210f4a988c0851ea9b8"))
+	fmt.Println(fio.GetArchivedPath4Hash("e0dafb6109ade198327e54c04b9e92ba925f29292f316210f4a988c0851ea9b8"))
 }
 func TestMapLoop(t *testing.T) {
 	tk := (&bizutils.TokenManager{}).Init()

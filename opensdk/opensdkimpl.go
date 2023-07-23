@@ -22,13 +22,22 @@ func NewOpenApi(addr string, user User) IOpenApi {
 
 // OpenSdkImpl 开放api接口
 type OpenSdkImpl struct {
-	conn *Conn4RPC
+	conn IConn4RPC
 	dsm  *DataStream
 }
 
-// GetRPCConn GetRPCConn
-func (s *OpenSdkImpl) GetRPCConn() *Conn4RPC {
-	return s.conn
+// ConnTest ConnTest
+func (s *OpenSdkImpl) ConnTest(user User) error {
+	if client, err := s.conn.GetClient(); nil != err {
+		return err
+	} else {
+		defer client.Close()
+		var reply bool
+		if err = client.Call("AuthApi.DoCheckPwd", user, &reply); nil != err {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *OpenSdkImpl) IsDir(src string) (bool, error) {
