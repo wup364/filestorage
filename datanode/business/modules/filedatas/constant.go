@@ -16,4 +16,8 @@ const (
 	CONFKEY_MOUNTTYPE = "type"
 	// CONFKEY_MOUNTADDR CONFKEY_MOUNTADDR
 	CONFKEY_MOUNTADDR = "addr"
+	// CONFKEY_ENCRYPTIONMODE 加密模式
+	CONFKEY_ENCRYPTIONMODE = "filedatas.encryption.mode"
+	// CONFKEY_ENCRYPTIONPWD 加密密码
+	CONFKEY_ENCRYPTIONPWD = "filedatas.encryption.passwd"
 )

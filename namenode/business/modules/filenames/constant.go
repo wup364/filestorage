@@ -11,7 +11,15 @@
 
 package filenames
 
+import "github.com/wup364/pakku/utils/utypes"
+
 const (
 	AREA_ROOT_MAIN    = "sys.main"
 	AREA_ROOT_RECYCLE = "sys.delete"
 )
+
+// filenamesConfig 配置信息
+type filenamesConfig struct {
+	datasource utypes.Object `@value:"store.filenames.datasource"`
+	driver     string        `@value:"store.filenames.driver:sqlite3"`
+}

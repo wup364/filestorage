@@ -27,7 +27,7 @@ import (
 // NameManage 树
 type NameManage struct {
 	image *names.NameImage
-	story *names.NameStory
+	story *names.NameRepo
 	fw    *upool.GoWorker
 	ev    ipakku.AppSyncEvent
 }
@@ -35,7 +35,7 @@ type NameManage struct {
 // Setting 设置DB, 文件和目录可以分开存
 func (nm *NameManage) Setting(st ifilestorage.DBSetting) (err error) {
 	if nil == nm.story {
-		nm.story = &names.NameStory{}
+		nm.story = &names.NameRepo{}
 		err = nm.story.Initial("filenames", st)
 	}
 	if nil == nm.image {

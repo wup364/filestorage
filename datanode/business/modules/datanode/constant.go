@@ -12,10 +12,32 @@ package datanode
 import (
 	"encoding/json"
 	"errors"
+
+	"github.com/wup364/pakku/utils/utypes"
 )
 
 // ErrInvalidToken 无效的token
 var ErrInvalidToken = errors.New("invalid token")
+
+// ConfigBean 配置信息
+type ConfigBean struct {
+	datanodeDatasource utypes.Object `@value:"store.datanode.datasource"`
+	datahashDatasource utypes.Object `@value:"store.datahash.datasource"`
+	namenode           struct {
+		rpcAddr string `@value:"namenode.rpc.address:127.0.0.1:5051"`
+		rpcUser string `@value:"namenode.rpc.user:DATANODE"`
+		rpcPwd  string `@value:"namenode.rpc.pwd:"`
+	}
+	listen struct {
+		rpcAddress   string        `@value:"listen.rpc.address:127.0.0.1:5061"`
+		httpAddress  string        `@value:"listen.http.address:http://127.0.0.1:5062"`
+		rpcEndpoint  utypes.Object `@value:"listen.rpc.endpoint"`
+		httpEndpoint utypes.Object `@value:"listen.http.endpoint"`
+	}
+	clearsetting struct {
+		deletefile bool `@value:"clearsetting.deletefile:false"`
+	}
+}
 
 // PropJSON4DataNode PropJSON4DataNode
 type PropJSON4DataNode struct {

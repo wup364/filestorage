@@ -13,6 +13,8 @@ package datanode
 
 import (
 	"database/sql"
+	"datanode/business/modules/datanode/fio"
+	"datanode/business/modules/datanode/repository"
 	"datanode/ifilestorage"
 	"errors"
 	"io"
@@ -22,7 +24,7 @@ import (
 )
 
 // NewDataNodeImpl datanode 功能本机实现
-func NewDataNodeImpl(ds *DataNodeStory, df *DataNodeFiles, tm *TokenManage) *DataNodeImpl {
+func NewDataNodeImpl(ds *repository.DataNodeRepo, df *fio.DataNodeFiles, tm *fio.TokenManage) *DataNodeImpl {
 	return &DataNodeImpl{
 		dns: ds,
 		df:  df,
@@ -32,10 +34,10 @@ func NewDataNodeImpl(ds *DataNodeStory, df *DataNodeFiles, tm *TokenManage) *Dat
 
 // DataNodeImpl 数据存储节点
 type DataNodeImpl struct {
-	dns *DataNodeStory
-	dhs *DataHashStory
-	df  *DataNodeFiles
-	tm  *TokenManage
+	dns *repository.DataNodeRepo
+	dhs *repository.DataHashRepo
+	df  *fio.DataNodeFiles
+	tm  *fio.TokenManage
 }
 
 // GetDataFileNode 根据归档ID获取文件信息
@@ -114,7 +116,7 @@ func (dn *DataNodeImpl) DoSubmitWriteToken(token string) (node *ifilestorage.DNo
 					var conn4dhs *sql.Tx
 					if conn4dhs, err = dn.dhs.GetSqlTx(); nil == err {
 						for i := 0; i < len(node.Pieces); i++ {
-							if err = dn.dhs.InsertHash(conn4dhs, ifilestorage.HNode{Id: strutil.GetUUID(), Status: status_hashdata_enable, FId: node.Id, Hash: node.Pieces[i]}); nil != err {
+							if err = dn.dhs.InsertEnabledHash(conn4dhs, ifilestorage.HNode{Id: strutil.GetUUID(), FId: node.Id, Hash: node.Pieces[i]}); nil != err {
 								conn4dhs.Rollback()
 								break
 							}

@@ -11,6 +11,7 @@
 package rpcservice
 
 import (
+	"namenode/business/modules/user4rpc"
 	"namenode/ifilestorage"
 
 	"github.com/wup364/pakku/ipakku"
@@ -35,6 +36,13 @@ type AuthApi struct {
 	au ifilestorage.UserAuth4Rpc `@autowired:"User4RPC"`
 }
 
+func (n *AuthApi) DoCheckPwd(req *User, res *bool) error {
+	if *res =  n.au.CheckPwd(req.User, req.Passwd); *res {
+		return nil
+	}
+	return user4rpc.ErrorAuthentication
+}
+
 func (n *AuthApi) DoLogin(req *User, res *UserAccess) error {
 	if access, err := n.au.AskAccess(req.User, req.Passwd); nil != err {
 		return err
@@ -47,6 +55,7 @@ func (n *AuthApi) DoLogin(req *User, res *UserAccess) error {
 	}
 	return n.ev.PublishSyncEvent("authApi", "dologin.succeed", *req)
 }
+
 func (n *AuthApi) DoPing(req *string, res *bool) error {
 	if err := n.au.RefreshAccessKey(*req); nil != err {
 		return err
