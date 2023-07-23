@@ -22,7 +22,7 @@ import (
 func crateDefaultUsers() pakkusys.ModuleEvent {
 	return pakkusys.ModuleEvent{
 		Module: "User4RPC",
-		Event:  ipakku.ModuleEventOnSetup,
+		Event:  ipakku.ModuleEventOnSetupSucced,
 		Handler: func(module interface{}, _ ipakku.Loader) {
 			umg := module.(ifilestorage.UserManage)
 			if err := umg.Clear(); nil == err {
