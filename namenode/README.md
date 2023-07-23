@@ -19,7 +19,6 @@
 | namenode | OPENAPI | `空` | OPENAPI |  调用开放api接口时使用, 可以调用文件部分接口 |
 
     1) 初次使用时, 在namenode启动成功后, 可使用`shelltool`连接服务器进行管理.
-    2) 用户信息数据库配置 `store.user4rpc.driver=sqlite3` 和 `store.user4rpc.datasource=${appname}#user?cache=shared`, 可以更改成mysql的连接.
 
 ### 配置清单
 

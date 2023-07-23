@@ -91,8 +91,10 @@ func (dn *DataNode) onReady(mctx ipakku.Loader) {
 			}.ToJSON(),
 		})
 	// 尝试登录
-	if err := dn.nconn.DoLogin(); nil != err {
-		logs.Panicln(err)
+	for err := dn.nconn.DoLogin(); nil != err; {
+		logs.Errorln(err)
+		time.Sleep(time.Second)
+		err = dn.nconn.DoLogin();
 	}
 	dn.nrpc = remote.NewRPC4NameNode(dn.nconn)
 	// 传输Token功能

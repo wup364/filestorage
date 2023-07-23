@@ -10,8 +10,8 @@ require (
 	github.com/mattn/go-colorable v0.1.12
 	github.com/willscott/go-nfs v0.0.0-20211118152618-00ba06574ea0
 	github.com/wup364/filestorage/opensdk v0.0.1
-	github.com/wup364/pakku v0.0.1
-	golang.org/x/net v0.0.0-20220930213112-107f3e3c3b0b
+	github.com/wup364/pakku v0.0.5
+	golang.org/x/net v0.0.0-20220930213112-107f3e3c3b0b // indirect
 	google.golang.org/grpc v1.49.0
 	google.golang.org/protobuf v1.28.1
 )
